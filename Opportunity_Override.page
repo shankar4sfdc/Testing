@@ -1,0 +1,9 @@
+<apex:page standardController="Opportunity" recordSetVar="opportunities"
+tabStyle="Opportunity"
+sidebar="true">
+<apex:outputPanel layout="block">
+<!--<apex:enhancedList type="Opportunity" height="650" rowsPerPage="50" id="OpportunityList" /> -->
+<!-- Below added by SFDC Support Re Case 08546807 -->
+<apex:listViews type="Opportunity"/>
+</apex:outputPanel>
+</apex:page>

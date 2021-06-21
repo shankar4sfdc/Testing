@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Importance_Score__c</fullName>
+    <externalId>false</externalId>
+    <label>Importance Score</label>
+    <summarizedField>Briefing_Score__c.Score__c</summarizedField>
+    <summaryFilterItems>
+        <field>Briefing_Score__c.Briefing_Rule_Record_Type__c</field>
+        <operation>notContain</operation>
+        <value>0127E000003GyJoQAK</value>
+    </summaryFilterItems>
+    <summaryForeignKey>Briefing_Score__c.Brief__c</summaryForeignKey>
+    <summaryOperation>sum</summaryOperation>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

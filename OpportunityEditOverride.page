@@ -1,0 +1,7 @@
+<!--=====================================================================================
+Visualforce Page: OpportunityEditOverride
+Apex Class: OpportunityEditOverride
+Created By: Steve Woollard <steven.woollard@solutionsspectrum.co.uk>
+============================================================-->
+<apex:page standardController="Opportunity" extensions="OpportunityEditOverride" showHeader="true" action="{!getLandingPage}">
+</apex:page>

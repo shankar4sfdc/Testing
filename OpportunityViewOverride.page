@@ -1,0 +1,3 @@
+<apex:page StandardController="Opportunity" tabStyle="Opportunity" sidebar="true" >
+    <apex:detail inlineEdit="true" relatedList="true"/>
+</apex:page>

@@ -1,0 +1,380 @@
+<!--=====================================================================================
+Visualforce Page:CppOpportunitySelection
+Apex Class:CppOpportunitySelectionController
+Created By:Saritha Karuturi
+Last Modified By:Saritha Karuturi
+
+============================================================-->
+<apex:page tabstyle="Opportunity"  StandardController="Opportunity" extensions="CppOpportunitySelectionController"  showHeader="true"  sidebar="true" >
+  
+<script type="text/javascript"> 
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () { history.go(1); };
+</script>
+    <apex:includeScript value="{!URLFOR($Resource.jquery, '/jquery.min.js')}" />
+    <script>
+    if (location.href.match(/inline=1/)) window.top.location=location.href.replace(/inline=1/, '');
+    </script>
+    <!--passing parameter returnstring to navigate to existed/new page for save and save@new button click-->
+    <script>
+        function functionToSetReturnString() {
+            if(document.getElementById('{!$Component.theForm.pg.returnString}')){
+                document.getElementById('{!$Component.theForm.pg.returnString}').value = "Success";
+            }else if(document.getElementById('{!$Component.theForm.pg.returnString1}')){
+                document.getElementById('{!$Component.theForm.pg.returnString1}').value = "Success";
+            }      
+        } 
+    
+        function updateOppCurrencySelectList() {
+            var currencyOptions = document.querySelectorAll('[id$="oppCurrencyId"]')[0];
+            if(currencyOptions != null) {
+                for(var i=0 ; i < currencyOptions.length; i++) {
+                    if(currencyOptions[i].value == '{!currentCurrency}' ) {
+                        currencyOptions[i].selected = true;
+                    }
+                }
+            }
+        }
+    
+        function ShowCharCount(myTA, maxSize, SizeLabel) {
+            document.getElementById(SizeLabel).innerHTML = (maxSize - myTA.value.length) + ' chars left';
+        }
+           
+        $(document).ready(function(){
+        //console.log(document.getElementById('{!$Component.j_id0.theForm.pg.pg1.com.comment}').focus());
+        //console.log(document.getElementById('{!$Component.j_id0.theForm.pg.pg2.com1.comment1}').focus());
+        if(document.getElementById('{!$Component.j_id0.theForm.pg.pg1.com.comment}') != null){
+        var input = document.getElementById('{!$Component.j_id0.theForm.pg.pg1.com.comment}').focus();
+        }
+        if(document.getElementById('{!$Component.j_id0.theForm.pg.pg2.com1.comment1}') != null){
+        var input = document.getElementById('{!$Component.j_id0.theForm.pg.pg2.com1.comment1}').focus();
+        }
+        if(document.getElementById('{!$Component.j_id0.theForm.pg.pg3.com2.comment2}') != null){
+        var input = document.getElementById('{!$Component.j_id0.theForm.pg.pg3.com2.comment2}').focus();
+        }
+        if(document.getElementById('{!$Component.j_id0.theForm.pg.pg4.com3.comment3}') != null){
+        var input = document.getElementById('{!$Component.j_id0.theForm.pg.pg4.com3.comment3}').focus();
+        }
+        });
+        
+     </script>
+    
+    <style type="text/css">
+        .pbSubsection{ background-color: transparent; } 
+        .j_id0:theForm:pg:j_id82:pbsecitem:j_id88{width: 1000px; height: 700px;}
+        .bPageBlock.apexDefaultPageBlock .pbBody .pbSubheader {
+        background-color: white;
+        
+        }
+        .bPageBlock.apexDefaultPageBlock .pbBody .pbSubheader h3 {
+        color:black;
+        }
+        .apexp .bPageBlock.apexDefaultPageBlock .pbBody .pbSubheader .hideListButton{
+        background-position: 0px -0px;
+        }
+        .apexp .bPageBlock.apexDefaultPageBlock .pbBody .pbSubheader .showListButton{ 
+        background-position: 0px -0px;
+        } 
+        .dataCol first last{ width:100px;}   
+        
+        }
+    </style>    
+    <apex:form id="theForm">
+    <input id="reloadValue" type="hidden" name="reloadValue" value="{!If(pageMode=='Edit','Yes','No')}" />
+    <apex:actionstatus id="actStatusId">
+            <apex:facet name="start">
+                <div class="waitingSearchDiv" id="el_loading" style="background-color: #DCD6D6;
+                       height: 100%;opacity:0.65;width:100%;"> 
+                    <div class="waitingHolder" style="top: 74.2px; width: 91px;">
+                        <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+                        <span class="waitingDescription">LOADING...</span>
+                    </div>
+                </div>
+            </apex:facet>
+        </apex:actionstatus>
+        <apex:pageBlock id="pg"  mode="edit" ><br></br>
+        
+        <apex:pageMessages />
+
+        <div id="btn1"  align="center" draggable="false">
+                <apex:outputPanel rendered="{!if((opp.StageName!=Null),true,false)}">
+                    <apex:commandButton value="{!$Label.Save}" onclick="this.onclick=function(){return false;}" action="{!SaveOpp}" />
+                    <apex:inputHidden id="returnString" value="{!returnString}" />
+                    <apex:commandButton value="{!$Label.Save_New}" action="{!SaveOpp}" onclick="return functionToSetReturnString();"/>
+                    <apex:commandButton value="{!$Label.Cancel}" action="{!doCancel}" immediate="true" />          
+                </apex:outputPanel>
+        </div>   
+        
+       <apex:actionRegion >
+            <apex:pageBlockSection columns="2" >
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.Opportunity.fields.Current_Status__c.inlineHelpText}" >
+                    <apex:outputLabel value="Status"/>
+                    <apex:inputField value="{!opp.StageName}" id="stageId" label="{!$Label.Status}" onchange="hideOppSection()" >                                   
+                        <apex:actionSupport action="{!getCppFields}"  event="onchange" reRender="pg,theForm" /> 
+                        <apex:actionFunction action="{!gethideOppSection}" name="hideOppSection" oncomplete="updateOppCurrencySelectList()" reRender="pg,theForm" STATUS="actStatusId"/>     
+                    </apex:inputField>
+                </apex:pageBlockSectionItem>    
+            </apex:pageBlockSection>                
+        </apex:actionRegion>
+                    
+        <apex:outputPanel rendered="{!if((opp.StageName!=Null && opp.StageName!= 'SPOT')&& (opp.StageName!=Null && opp.StageName!= 'Target Business – Quick Win')&& (opp.StageName!=Null && opp.StageName!= 'Target Business – Project'),true,false)}">
+            <apex:pageBlock id="pg1" mode="edit" >
+                <apex:pageBlockSection columns="2" title="{!$Label.CPP_Information}" >
+                    <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic}" var="fieldValue" >
+                        <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}" label="{!If(fieldValue.Label=='Account ID' ,'Account',fieldValue.Label)} "/>
+                    </apex:repeat>  
+                    <apex:inputField value="{!opp.OwnerId}" Required="true" label="{!$Label.CPP_Owner}"/>         
+                </apex:pageBlockSection>  
+                <apex:pageBlockSection columns="2" title="{!$Label.Product_Information}">
+                    <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Product_Information_Part_1}" var="fieldValue" >
+                        <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"  />
+                    </apex:repeat>
+                    <br></br> 
+                <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Product_Information_Part_2}" var="fieldValue" >
+                    <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"  />
+                </apex:repeat> 
+                <br></br>
+            <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Product_Information_Part_3}" var="fieldValue" >
+                <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"  />
+            </apex:repeat>               
+        </apex:pageBlockSection> 
+        <apex:pageBlockSection columns="2" title="{!$Label.Current_CPP_Status}">
+            <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Current_CPP_Status}" var="fieldValue" >
+                <apex:pageBlockSectionItem helpText="{!$ObjectType.Opportunity.fields[fieldValue].inlineHelpText}">
+                    <apex:outputLabel value="{!fieldValue.Label}"/>                
+                    <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"  label="{!If(fieldValue.Label=='Opportunity Currency' ,'Currency',fieldValue.Label)}"/>
+                </apex:pageBlockSectionItem>
+            </apex:repeat> 
+            <br></br>  
+        <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Current_CPP_Status_Part_2}" var="fieldValue" >
+            <apex:pageBlockSectionItem helpText="{!$ObjectType.Opportunity.fields[fieldValue].inlineHelpText}">
+                <apex:outputLabel value="{!fieldValue.Label}"/>
+                <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"  label="{!If(fieldValue.Label=='Opportunity Currency' ,'Currency',fieldValue.Label)}"/>
+            </apex:pageBlockSectionItem>
+        </apex:repeat>     
+    </apex:pageBlockSection> 
+    <apex:pageBlockSection columns="2" title="{!$Label.Description}" id="com">            
+        <apex:inputField id="comment" value="{!opp.Comments__c}"  style="width:80%;height:90px;background-color: white;"  onchange="ShowCharCount(this, 255, '{!$Component.myTASize}');" onmousedown="ShowCharCount(this, 255, '{!$Component.myTASize}');"
+                    onkeyup="ShowCharCount(this, 255, '{!$Component.myTASize}');"
+                    onkeydown="ShowCharCount(this, 255, '{!$Component.myTASize}');"
+                    onfocus="ShowCharCount(this, 255, '{!$Component.myTASize}');"
+                    onclick="ShowCharCount(this, 255, '{!$Component.myTASize}');"/>  
+      <apex:outputPanel id="myTASize" style="color:#c00000;">255 chars left</apex:outputPanel>            
+    </apex:pageBlockSection>    
+       
+</apex:pageblock>
+</apex:outputPanel> 
+<apex:outputPanel rendered="{!if(opp.StageName == 'Target Business – Quick Win',true,false)}" > 
+    <apex:pageBlock id="pg2" mode="edit" >
+        <apex:pageBlockSection columns="2" title="{!$Label.Opportunity_Information}" rendered="{!If(checkoppSecShow=true || pagemode=null || pagemode='clone',true,false)}">   
+            <apex:inputField value="{!opp.Opportunity_Closedate__c}" style="background-color: white;"  required="true"/>            
+            <apex:inputField value="{!opp.Chase_Date__c}" style="background-color: white;"  required="true"/> 
+            <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Quickwin_Opportunity_Information}" var="fieldValue">
+                <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"/>
+            </apex:repeat>                
+            <apex:Inputfield id="oppCurrencyId" label="{!$Label.Opportunity_Currency}" value="{!opp.Opportunity_Currency__c}" rendered="{!if(checkoppSecShow=true || pageMode != 'edit', true, false)}"/>
+        </apex:pageBlockSection> 
+        <apex:pageBlockSection columns="1" rendered="{!If(checkoppSecShow=true || pagemode=null || pagemode='clone',true,false)}">        
+            <apex:inputField value="{!opp.Opportunity_Next_Step__c}"   style="width:80%;height:90px;background-color: white;"/>           
+        </apex:pageBlockSection>    
+        <apex:pageBlockSection columns="2" title="{!$Label.CPP_Information}">
+            <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.QuickWin}" var="fieldValue">
+                <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}" label="{!If(fieldValue.Label=='Account ID' ,'Account',fieldValue.Label)}"/>
+            </apex:repeat> 
+            <apex:inputField value="{!opp.OwnerId}" Required="true" label="{!$Label.CPP_Owner}"/>                               
+        </apex:pageBlockSection> 
+        <apex:pageBlockSection columns="2" title="{!$Label.Product_Information}">
+            <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Product_Information_Part_1}" var="fieldValue">
+                <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}" />
+            </apex:repeat> 
+            <br></br>
+        <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Product_Information_Part_2}" var="fieldValue" >
+            <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"  />
+        </apex:repeat> 
+        <br></br> 
+    <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Product_Information_Part_3}" var="fieldValue" >
+        <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"  />
+    </apex:repeat>    
+</apex:pageBlockSection> 
+<apex:pageBlockSection columns="2" title="{!$Label.Current_CPP_Status}">
+    <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Current_CPP_Status}" var="fieldValue" >
+        <apex:pageBlockSectionItem helpText="{!$ObjectType.Opportunity.fields[fieldValue].inlineHelpText}">
+            <apex:outputLabel value="{!fieldValue.Label}"/>
+            <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"  label="{!If(fieldValue.Label=='Opportunity Currency' ,'Currency',fieldValue.Label)}"/>
+        </apex:pageBlockSectionItem>
+    </apex:repeat> 
+    <br></br>  
+<apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Current_CPP_Status_Part_2}" var="fieldValue" >
+    <apex:pageBlockSectionItem helpText="{!$ObjectType.Opportunity.fields[fieldValue].inlineHelpText}">
+        <apex:outputLabel value="{!fieldValue.Label}"/>
+        <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"  label="{!If(fieldValue.Label=='Opportunity Currency' ,'Currency',fieldValue.Label)}"/>
+    </apex:pageBlockSectionItem>
+</apex:repeat>     
+</apex:pageBlockSection> 
+<apex:pageBlockSection columns="2" title="{!$Label.Description}" id="com1">    
+    <apex:inputField id="comment1" value="{!opp.Comments__c}"   style="width:80%;height:90px;background-color: white;"  onchange="ShowCharCount(this, 255, '{!$Component.myTASize1}');" onmousedown="ShowCharCount(this, 255, '{!$Component.myTASize1}');"
+                    onkeyup="ShowCharCount(this, 255, '{!$Component.myTASize1}');"
+                    onkeydown="ShowCharCount(this, 255, '{!$Component.myTASize1}');"
+                    onfocus="ShowCharCount(this, 255, '{!$Component.myTASize1}');"
+                    onclick="ShowCharCount(this, 255, '{!$Component.myTASize1}');"/>  
+        <apex:outputPanel id="myTASize1" style="color:#c00000;">255 chars left</apex:outputPanel> 
+</apex:pageBlockSection>
+
+</apex:pageBlock>
+</apex:outputPanel>
+
+<apex:outputPanel rendered="{!if(opp.StageName== 'Target Business – Project' ,true,false)}" > 
+    <apex:pageBlock id="pg3" mode="edit" >        
+        <apex:pageBlockSection columns="2" title="{!$Label.Opportunity_Information}" rendered="{!If(checkoppSecShow=true || pagemode=null || pagemode='clone',true,false)}">
+            <apex:pageBlockSectionItem id="AmountSectionItem">
+                <apex:outputLabel value="{!$Label.Opportunity_Stage}" for="stageid"/> 
+                <apex:actionRegion > 
+                    <apex:actionFunction action="{!getProjectProbablity}" reRender="stageout" name="fetchProbaility" />              
+                    <apex:inputField value="{!opp.Opportunity_Stage__c}" style="width:200px;background-color: white;"  required="true" onchange="fetchProbaility()" id="stageid" />             
+                </apex:actionRegion> 
+            </apex:pageBlockSectionItem>    
+            <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Project_Opportunity_Information}" var="fieldValue">
+                <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"/>
+            </apex:repeat>      
+            <apex:Inputfield id="oppCurrencyId" label="{!$Label.Opportunity_Currency}" value="{!opp.Opportunity_Currency__c}" rendered="{!if(checkoppSecShow=true || pageMode != 'edit', true, false)}"/>
+            <apex:inputField value="{!opp.Opportunity_Probability__c}" style="width:200px;background-color: white;" required="true" id="stageout"/>       
+            <br></br>
+    </apex:pageBlockSection>
+    <apex:pageBlockSection columns="1" rendered="{!If(checkoppSecShow=true || pagemode=null || pagemode='clone',true,false)}">    
+        <apex:inputField value="{!opp.Opportunity_Next_Step__c}"   style="width:80%;height:90px;background-color: white;"/>      
+    </apex:pageBlockSection>      
+    <apex:pageBlockSection columns="2" title="{!$Label.Current_CPP_Status}">
+        <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Project}" var="fieldValue">
+            <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}" label="{!If(fieldValue.Label=='Account ID' ,'Account',fieldValue.Label)}"/>
+        </apex:repeat>    
+        <apex:inputField value="{!opp.OwnerId}" Required="true" label="{!$Label.CPP_Owner}"/>   
+    </apex:pageBlockSection> 
+    <apex:pageBlockSection columns="2" title="{!$Label.Product_Information}">
+        <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Product_Information_Part_1}" var="fieldValue">
+            <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}" />
+        </apex:repeat>  
+        <br></br>
+    <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Product_Information_Part_2}" var="fieldValue" >
+        <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"  />
+    </apex:repeat>  
+    <br></br> 
+<apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Product_Information_Part_3}" var="fieldValue" >
+    <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"  />
+</apex:repeat>  
+</apex:pageBlockSection> 
+<apex:pageBlockSection columns="2" title="{!$Label.Current_CPP_Status}">
+    <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Current_CPP_Status}" var="fieldValue" >
+        <apex:pageBlockSectionItem helpText="{!$ObjectType.Opportunity.fields[fieldValue].inlineHelpText}">
+            <apex:outputLabel value="{!fieldValue.Label}"/>
+            <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"  label="{!If(fieldValue.Label=='Opportunity Currency' ,'Currency',fieldValue.Label)}"/>
+        </apex:pageBlockSectionItem>
+    </apex:repeat> 
+    <br></br>  
+<apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Current_CPP_Status_Part_2}" var="fieldValue" >
+    <apex:pageBlockSectionItem helpText="{!$ObjectType.Opportunity.fields[fieldValue].inlineHelpText}">
+        <apex:outputLabel value="{!fieldValue.Label}"/>
+        <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"  label="{!If(fieldValue.Label=='Opportunity Currency' ,'Currency',fieldValue.Label)}"/>
+    </apex:pageBlockSectionItem>
+</apex:repeat>     
+</apex:pageBlockSection> 
+<apex:pageBlockSection columns="2" title="{!$Label.Description}" id="com2">   
+    <apex:inputField id="comment2" value="{!opp.Comments__c}"   style="width:80%;height:90px;background-color: white;"  onchange="ShowCharCount(this, 255, '{!$Component.myTASize2}');" onmousedown="ShowCharCount(this, 255, '{!$Component.myTASize2}');"
+                    onkeyup="ShowCharCount(this, 255, '{!$Component.myTASize2}');"
+                    onkeydown="ShowCharCount(this, 255, '{!$Component.myTASize2}');"
+                    onfocus="ShowCharCount(this, 255, '{!$Component.myTASize2}');"
+                    onclick="ShowCharCount(this, 255, '{!$Component.myTASize2}');"/>  
+    <apex:outputPanel id="myTASize2" style="color:#c00000;">255 chars left</apex:outputPanel>     
+</apex:pageBlockSection>
+
+</apex:pageBlock>
+</apex:outputPanel>
+<apex:outputPanel rendered="{!if(opp.StageName== 'SPOT',true,false)}"  >
+    <apex:pageBlock id="pg4" mode="edit" >
+        
+        <apex:pageBlockSection title="{!$Label.Opportunity_Information}" columns="2">
+            <apex:pageBlockSectionItem id="FrequencySecitem">
+                <apex:outputLabel value="{!$Label.Frequency}" for="freq"/> 
+                <apex:actionRegion > 
+                    <apex:actionFunction action="{!calSpotCloseDate}" reRender="out" name="closeDateCalculation" />  
+                    <apex:inputField value="{!opp.Frequency__c}" onchange="closeDateCalculation()" id="freq" required="true" style="width:200px;background-color: white;"  />                    
+                </apex:actionRegion> 
+            </apex:pageBlockSectionItem>
+             <apex:inputField value="{!opp.ChaseDate_Duration__c}" rendered="{!If(opp.id!=null&&pageMode=='edit'&&isSwitchToSpot=='false'&& childCount > 0,'True',False)}" />                       
+             <!-- Changed on below line on "27-02-2018" rendered="{!if(((isspotedit=='oldspot') || pageMode=='edit') && previousstage != 'cpp' && isSwitchToSpot!= 'true' && (opp.ChaseDate_Duration__c==0 || opp.ChaseDate_Duration__c=null) && opp.Frequency__c!=null,True,false)}"  -->
+             <apex:inputField value="{!opp.Chase_Date__c}"   required="True" rendered="{!if(((isspotedit=='oldspot') && pageMode=='edit') && previousstage != 'cpp' && isSwitchToSpot!= 'true' && (opp.ChaseDate_Duration__c==0 || opp.ChaseDate_Duration__c=null) && opp.Frequency__c!=null,True,false)}" />  
+            <br></br>  
+            <!----Changed below two lines and added the condition "||(opp.ChaseDate_Duration__c==0 || opp.ChaseDate_Duration__c=null) && opp.id!=null)" by VSpAM on 07/06/1986 --->
+            <!--  <apex:inputField value="{!opp.Opportunity_Closedate__c}"  id="out1"  required="True" rendered="{!If((opp.Status_Check__c == true),True,false)}"/> -->
+          <!--   <apex:inputField value="{!opp.Chase_Date__c}"   required="True" rendered="{!if((opp.Status_Check__c == true),True,false)}" /> -->       
+     <!--     <apex:inputField value="{!opp.Opportunity_Closedate__c}"  id="out1"  required="True" rendered="{!If((opp.Frequency__c == null && opp.ChaseDate_Duration__c==Null && pageMode!='clone' && pageMode=='edit' && previousstage != 'cpp'),True,false)}"/>
+          <apex:inputField value="{!opp.Chase_Date__c}"   required="True" rendered="{!if((opp.Frequency__c == null && opp.ChaseDate_Duration__c==Null && pageMode!='clone' && pageMode=='edit' && previousstage != 'cpp'),True,false)}" />   
+       <apex:inputField value="{!opp.Chase_Date__c}"   required="True" rendered="{!if(((isspotedit=='oldspot') || pageMode=='edit') && isSwitchToSpot!='true' && (opp.ChaseDate_Duration__c==0 || opp.ChaseDate_Duration__c=null),True,false)}" /> -->
+       <apex:inputField value="{!opp.Opportunity_Closedate__c}"  id="out"  required="True" rendered="{!If(((pageMode!='edit' || isSwitchToSpot=='true') || previousstage == 'cpp' || opp.Status_Check__c == true),True,false)}"/>
+      
+       <apex:inputField value="{!opp.Chase_Date__c}"   required="True" rendered="{!if((isspotedit=='newspot') || pageMode=='clone' || isSwitchToSpot=='true' || previousstage == 'cpp' || opp.Status_Check__c == true,True,false)}" />
+   <!--    <apex:inputField value="{!opp.ChaseDate_Duration__c}" rendered="{!If(opp.id!=null&&opp.Opportunity_Closedate__c!=null&&pageMode=='edit'&&isSwitchToSpot=='false'&& opp.ChaseDate_Duration__c!=Null,'True',False)}" /> -->     
+   
+    </apex:pageBlockSection>
+    <apex:pageBlockSection columns="1" rendered="{!If(pageMode!='edit' || isSwitchToSpot=='true' || pageMode=='clone' || previousstage == 'cpp',True,false)}">    
+        <apex:inputField value="{!opp.Opportunity_Next_Step__c}" rendered="{!If(pageMode!='edit'  || isSwitchToSpot=='true'  || pageMode=='clone' || previousstage == 'cpp',True,false)}"  style="width:80%;height:90px;background-color: white;"/>      
+    </apex:pageBlockSection>      
+    
+    <apex:pageBlockSection columns="2" title="{!$Label.CPP_Information}">
+        <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Spot}" var="fieldValue">
+            <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"  label="{!If(fieldValue.Label=='Account ID' ,'Account',fieldValue.Label)}"/>
+        </apex:repeat>
+        <apex:inputField value="{!opp.OwnerId}" Required="true" label="{!$Label.CPP_Owner}"/>           
+    </apex:pageBlockSection> 
+    <apex:pageBlockSection columns="2" title="{!$Label.Product_Information}">
+        <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Product_Information_Part_1}" var="fieldValue">
+            <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"/>
+        </apex:repeat>         
+        <br></br>
+    <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Product_Information_Part_2}" var="fieldValue" >
+        <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"  />
+    </apex:repeat> 
+    <br></br>  
+<apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Product_Information_Part_3}" var="fieldValue" >
+    <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"  />
+</apex:repeat>        
+</apex:pageBlockSection>  
+<apex:pageBlockSection columns="2" title="{!$Label.Current_CPP_Status}">
+    <apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Current_CPP_Status}" var="fieldValue" >
+        <apex:pageBlockSectionItem helpText="{!$ObjectType.Opportunity.fields[fieldValue].inlineHelpText}">
+            <apex:outputLabel value="{!fieldValue.Label}"/>
+            <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"  label="{!If(fieldValue.Label=='Opportunity Currency' ,'Currency',fieldValue.Label)}"/>
+        </apex:pageblockSectionItem>
+    </apex:repeat> 
+    <br></br>  
+<apex:repeat value="{!$ObjectType.Opportunity.fieldsets.Generic_Current_CPP_Status_Part_2}" var="fieldValue" >
+    <apex:pageBlockSectionItem helpText="{!$ObjectType.Opportunity.fields[fieldValue].inlineHelpText}">
+        <apex:outputLabel value="{!fieldValue.Label}"/>
+        <apex:Inputfield value="{!opp[fieldValue]}" required="{!OR(fieldValue.required, fieldValue.dbrequired)}"  label="{!If(fieldValue.Label=='Opportunity Currency' ,'Currency',fieldValue.Label)}"/>
+    </apex:pageBlockSectionItem>
+</apex:repeat>     
+</apex:pageBlockSection>
+<apex:pageBlockSection columns="2" title="{!$Label.Description}" id="com3">
+    <apex:inputField id="comment3" value="{!opp.Comments__c}" style="width:80%;height:90px;background-color: white;" onchange="ShowCharCount(this, 255, '{!$Component.myTASize3}');" onmousedown="ShowCharCount(this, 255, '{!$Component.myTASize3}');"
+                    onkeyup="ShowCharCount(this, 255, '{!$Component.myTASize3}');"
+                    onkeydown="ShowCharCount(this, 255, '{!$Component.myTASize3}');"
+                    onfocus="ShowCharCount(this, 255, '{!$Component.myTASize3}');"
+                    onclick="ShowCharCount(this, 255, '{!$Component.myTASize3}');"/>  
+    <apex:outputPanel id="myTASize3" style="color:#c00000;">255 chars left</apex:outputPanel>
+</apex:pageBlockSection>
+
+</apex:pageBlock>
+</apex:outputPanel> 
+<div id="btn1"  align="center" draggable="false" >
+    <apex:outputPanel rendered="{!if((opp.StageName!=Null),true,false)}">
+        <apex:commandButton value="{!$Label.Save}" onclick="this.onclick=function(){return false;}" action="{!SaveOpp}" />
+        <apex:inputHidden id="returnString1" value="{!returnString1}" />
+        <apex:commandButton value="{!$Label.Save_New}" action="{!SaveOpp}" onclick="return functionToSetReturnString();"/>
+        <apex:commandButton value="{!$Label.Cancel}" action="{!doCancel}" immediate="true"/>
+    </apex:outputPanel> 
+</div>   
+
+</apex:pageBlock>  
+
+</apex:form>
+
+</apex:page>

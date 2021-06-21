@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Brief_Trigger__c</fullName>
+    <externalId>false</externalId>
+    <label>Brief Trigger</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>Lever__c</controllingField>
+        <restricted>true</restricted>
+        <valueSetName>Brief_Trigger</valueSetName>
+        <valueSettings>
+            <controllingFieldValue>Pipeline</controllingFieldValue>
+            <valueName>Business Lost</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Pipeline</controllingFieldValue>
+            <valueName>Business Out Of Reach</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Pipeline</controllingFieldValue>
+            <valueName>Missed Opportunity</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Pipeline</controllingFieldValue>
+            <valueName>Next Product To Sell Insight</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Pipeline</controllingFieldValue>
+            <valueName>Other Potential</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Pipeline</controllingFieldValue>
+            <controllingFieldValue>SPOT</controllingFieldValue>
+            <valueName>SPOT Chase Date Approaches</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Pipeline</controllingFieldValue>
+            <valueName>Target Business Chase Date Approaches</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Pipeline</controllingFieldValue>
+            <valueName>Target Opportunity Needs Chasing</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Retention</controllingFieldValue>
+            <valueName>1 Month Gap</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Retention</controllingFieldValue>
+            <valueName>3 Consecutive Losses</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Retention</controllingFieldValue>
+            <valueName>Business Under Threat</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Retention</controllingFieldValue>
+            <valueName>Golden Nugget</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Retention</controllingFieldValue>
+            <valueName>KOO Gap</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Retention</controllingFieldValue>
+            <valueName>Risk and Winback Insight</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Margin Management</controllingFieldValue>
+            <valueName>CPP Gross Profit Squeeze Exists</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Margin Management</controllingFieldValue>
+            <valueName>Quote Exists No Order After 10 Days</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Effective Activity</controllingFieldValue>
+            <valueName>Changed Responsibilities</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Effective Activity</controllingFieldValue>
+            <valueName>Remind To Schedule Visit/Call</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>
