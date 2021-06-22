@@ -1,0 +1,221 @@
+<template>
+   <div class="slds-box slds-p-around_none slds-m-top_x-small slds-m-bottom_medium slds-m-horizontal_none">
+      <lightning-layout multiple-rows>
+         <lightning-layout-item size="12" small-device-size="12" medium-device-size="4" large-device-size="3" padding="around-small">
+            <div class="slds-form-element">
+               <label class="slds-form-element__label" for="select-01">What do you want to see?</label>
+               <div class="slds-form-element__control">
+                  <div class="slds-select_container">
+                     <select class="slds-select" id="select-01">
+                        <option value="">open orders</option>
+                        <option>Option One</option>
+                        <option>Option Two</option>
+                        <option>Option Three</option>
+                     </select>
+                  </div>
+               </div>
+            </div>
+            <lightning-input type="checkbox" label="Owned by me" checked name="input1"></lightning-input>
+            <lightning-button label="Update" title="Update" onclick={handleUpdateClick} class="slds-m-left_x-small"></lightning-button>
+         </lightning-layout-item>
+         <lightning-layout-item size="12" small-device-size="12" medium-device-size="9" large-device-size="9" padding="around-small">
+            <table aria-multiselectable="true" class="slds-table" role="grid">
+               <thead>
+                  <tr class="slds-line-height_reset">
+                     <th class="slds-text-align_right" scope="col" style="width:3.25rem">
+                        <span id="column-group-header" class="slds-assistive-text">Choose a row</span>
+                        <div class="slds-th__action slds-th__action_form">
+                           <div class="slds-checkbox">
+                              <input type="checkbox" name="options" id="checkbox-unique-id-297" value="checkbox-unique-id-297" tabindex="0" aria-labelledby="check-select-all-label column-group-header" />
+                              <label class="slds-checkbox__label" for="checkbox-unique-id-297" id="check-select-all-label">
+                              <span class="slds-checkbox_faux"></span>
+                              <span class="slds-form-element__label slds-assistive-text">Select All</span>
+                              </label>
+                           </div>
+                        </div>
+                     </th>
+                     <th aria-label="Product" aria-sort="none" class="slds-is-sortable" scope="col">
+                        <a class="slds-th__action slds-text-link_reset" href="#" role="button" tabindex="0">
+                           <span class="slds-assistive-text">Sort by: </span>
+                           <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                              <span class="slds-truncate" title="Product">Product</span> 
+                           </div>
+                        </a> 
+                     </th>
+                     <th aria-label="Material" aria-sort="none" class="slds-is-sortable" scope="col">
+                        <a class="slds-th__action slds-text-link_reset" href="#" role="button" tabindex="0">
+                           <span class="slds-assistive-text">Sort by: </span>
+                           <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                              <span class="slds-truncate" title="Material">Material</span> 
+                           </div>
+                        </a>
+                       
+                     </th>
+                     <th aria-label="CPP" aria-sort="none" class="slds-is-sortable" scope="col">
+                        <a class="slds-th__action slds-text-link_reset" href="#" role="button" tabindex="0">
+                           <span class="slds-assistive-text">Sort by: </span>
+                           <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                              <span class="slds-truncate" title="CPP">CPP</span> 
+                           </div>
+                        </a> 
+                     </th>
+                     <th aria-label="Volume" aria-sort="none" class="slds-is-sortable" scope="col">
+                        <a class="slds-th__action slds-text-link_reset" href="#" role="button" tabindex="0">
+                           <span class="slds-assistive-text">Sort by: </span>
+                           <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                              <span class="slds-truncate" title="Volume">Volume (kg)</span> 
+                           </div>
+                        </a> 
+                     </th>
+                     <th aria-label="Sales" aria-sort="none" class="slds-is-resizable slds-is-sortable" scope="col">
+                        <a class="slds-th__action slds-text-link_reset" href="#" role="button" tabindex="0">
+                           <span class="slds-assistive-text">Sort by: </span>
+                           <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                              <span class="slds-truncate" title="Sales">Sales</span> 
+                           </div>
+                        </a> 
+                     </th>
+                     <th aria-label="GP" aria-sort="none" class="slds-is-resizable slds-is-sortable" scope="col">
+                        <a class="slds-th__action slds-text-link_reset" href="#" role="button" tabindex="0">
+                           <span class="slds-assistive-text">Sort by: </span>
+                           <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                              <span class="slds-truncate" title="GP">GP</span> 
+                           </div>
+                        </a> 
+                     </th>
+                     <th aria-label="GPT" aria-sort="none" class="slds-is-resizable slds-is-sortable" scope="col">
+                        <a class="slds-th__action slds-text-link_reset" href="#" role="button" tabindex="0">
+                           <span class="slds-assistive-text">Sort by: </span>
+                           <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                              <span class="slds-truncate" title="GPT">GP/T</span> 
+                           </div>
+                        </a> 
+                     </th>
+                    <th aria-label="GPP" aria-sort="none" class="slds-is-resizable slds-is-sortable" scope="col">
+                        <a class="slds-th__action slds-text-link_reset" href="#" role="button" tabindex="0">
+                           <span class="slds-assistive-text">Sort by: </span>
+                           <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                              <span class="slds-truncate" title="GPP">GP%</span> 
+                           </div>
+                        </a> 
+                     </th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr aria-selected="false" class="slds-hint-parent">
+                     <td style="text-align: -webkit-center;" role="gridcell">
+                        <div class="slds-checkbox">
+                           <input type="checkbox" name="options" id="checkbox-02" value="checkbox-02" tabindex="0" aria-labelledby="check-button-label-01 column-group-header" />
+                           <label class="slds-checkbox__label" for="checkbox-02" id="check-button-label-01">
+                           <span class="slds-checkbox_faux"></span>
+                           <span class="slds-form-element__label slds-assistive-text">Select item 1</span>
+                           </label>
+                        </div>
+                     </td>
+                     <th scope="row">
+                        <div class="slds-truncate" title="Ethanol 50%">
+                           <a href="#" tabindex="0">Ethanol 50%</a>
+                        </div>
+                     </th>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="Ethanol 50% IBC">Ethanol 50% IBC</div>
+                     </td>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="2645374">2645374</div>
+                     </td>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="1000">1000</div>
+                     </td>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="10000">10000</div>
+                     </td>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="1500">1500</div>
+                     </td>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="1.5" >1.5</div>
+                     </td>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="15%" style="background-color:#c4403b;">15%</div>
+                     </td>
+                  </tr> 
+                  <tr aria-selected="false" class="slds-hint-parent">
+                     <td style="text-align: -webkit-center;" role="gridcell">
+                        <div class="slds-checkbox">
+                           <input type="checkbox" name="options" id="checkbox-03" value="checkbox-03" tabindex="0" aria-labelledby="check-button-label-02 column-group-header" />
+                           <label class="slds-checkbox__label" for="checkbox-03" id="check-button-label-02">
+                           <span class="slds-checkbox_faux"></span>
+                           <span class="slds-form-element__label slds-assistive-text">Select item 1</span>
+                           </label>
+                        </div>
+                     </td>
+                     <th scope="row">
+                        <div class="slds-truncate" title="Caustic Soda 34%">
+                           <a href="#" tabindex="0">Caustic Soda 34%</a>
+                        </div>
+                     </th>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="Caustic Soda 35%">Caustic Soda 35%</div>
+                     </td>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="2645374">2645374</div>
+                     </td>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="1000">1000</div>
+                     </td>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="10000">10000</div>
+                     </td>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="1500">2500</div>
+                     </td>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="2.5">2.5</div>
+                     </td>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="25%" style="background-color:#ff9d42;">25%</div>
+                     </td>
+                  </tr> 
+                  <tr aria-selected="false" class="slds-hint-parent">
+                     <td style="text-align: -webkit-center;" role="gridcell">
+                        <div class="slds-checkbox">
+                           <input type="checkbox" name="options" id="checkbox-01" value="checkbox-01" tabindex="0" aria-labelledby="check-button-label-03 column-group-header" />
+                           <label class="slds-checkbox__label" for="checkbox-01" id="check-button-label-03">
+                           <span class="slds-checkbox_faux"></span>
+                           <span class="slds-form-element__label slds-assistive-text">Select item 1</span>
+                           </label>
+                        </div>
+                     </td>
+                     <th scope="row">
+                        <div class="slds-truncate" title="Actigum VSX 20">
+                           <a href="#" tabindex="0">Actigum VSX 20</a>
+                        </div>
+                     </th>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="Actigum VSX 20 bag 25 kg">Actigum VSX 20 bag 25 kg</div>
+                     </td>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="2645374">2645374</div>
+                     </td>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="25">25</div>
+                     </td>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="3450">3450</div>
+                     </td>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="1898">1898</div>
+                     </td>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="75900">75900</div>
+                     </td>
+                     <td role="gridcell">
+                        <div class="slds-truncate" title="55%" style="background-color:#08834c;">55%</div>
+                     </td>
+                  </tr> 
+               </tbody>
+            </table>
+         </lightning-layout-item>
+      </lightning-layout>
+   </div>
+</template>

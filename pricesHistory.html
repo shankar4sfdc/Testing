@@ -1,0 +1,462 @@
+<template>
+	<lightning-accordion class="example-accordion">
+		<lightning-accordion-section name="A" label="Caustic Soda 35% IBC (2325445)">
+			<lightning-button label="Open Q pricing" title="Non-primary action"
+				class="slds-m-left_x-small slds-float_right" style="margin-top: -2%;"></lightning-button>
+			<lightning-layout>
+				<lightning-layout-item padding="around-small">
+					<div class="header-column">
+						<p class="field-title" title="Pack weight">Pack weight</p>
+						<p>1000</p>
+					</div>
+				</lightning-layout-item>
+				<lightning-layout-item padding="around-small">
+					<div class="header-column">
+						<p class="field-title" title="Price Unit of Measure">Price Unit of Measure</p>
+						<p>Tonne</p>
+					</div>
+				</lightning-layout-item>
+				<lightning-layout-item padding="around-small">
+					<div class="header-column">
+						<p class="field-title" title="Is Bulk">Is Bulk</p>
+						<p></p>
+					</div>
+				</lightning-layout-item>
+				<lightning-layout-item padding="around-small">
+					<div class="header-column">
+						<p class="field-title" title="ESQ">ESQ</p>
+						<p>1000</p>
+					</div>
+				</lightning-layout-item>
+				<lightning-layout-item padding="around-small">
+					<div class="header-column">
+						<p class="field-title" title="Periodic calculation date">Periodic calculation date</p>
+						<p>21/3/2021</p>
+					</div>
+				</lightning-layout-item>
+			</lightning-layout>
+			<!--Table Start-->
+			<table class="slds-table slds-no-row-hover slds-table_bordered slds-table_col-bordered"
+				aria-label="Example table of Opportunities with vertical borders">
+				<thead>
+					<tr class="slds-line-height_reset">
+						<th class="" scope="col">
+							<div class="slds-truncate" title="Profile">Profile</div>
+						</th>
+						<th class="" scope="col">
+							<div class="slds-truncate" title="Effective Date">Effective Date</div>
+						</th>
+						<th class="" scope="col">
+							<div class="slds-truncate" title="Expiry Date">Expiry Date</div>
+						</th>
+						<th class="" scope="col">
+							<div class="slds-truncate" title="Volume (kg)">Volume (kg)</div>
+						</th>
+						<th class="" scope="col">
+							<div class="slds-truncate" title="Price (kg)">Price (kg)</div>
+						</th>
+						<th class="" scope="col">
+							<div class="slds-truncate" title="Currency">Currency</div>
+						</th>
+						<th class="" scope="col">
+							<div class="slds-truncate" title="Status">Status</div>
+						</th>
+                        <th class="" scope="col">
+							<div class="slds-truncate" title="IsEXW">IsEXW</div>
+						</th>
+                        <th class="" scope="col">
+							<div class="slds-truncate" title="Address">Address</div>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="slds-hint-parent">
+						<th data-label="Opportunity Name" scope="row">
+							<div class="slds-truncate" title="Core">Core</div>
+						</th>
+						<td data-label="Account Name">
+							<div class="slds-truncate" title="4/4/2021">4/4/2021</div>
+						</td>
+						<td data-label="Close Date">
+							<div class="slds-truncate" title="3/5/2021">3/5/2021</div>
+						</td>
+						<td data-label="Prospecting">
+							<div class="slds-truncate" title="1000">1000</div>
+						</td>
+						<td data-label="Confidence">
+							<div class="slds-truncate" title="1.225">1.225</div>
+						</td>
+						<td data-label="Amount">
+							<div class="slds-truncate" title="GBP">GBP</div>
+						</td>
+						<td data-label="Contact">
+							<div class="slds-truncate" title="Future">Future</div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="checkbox">
+                                <lightning-input type="checkbox" name="input1"></lightning-input>
+                            </div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="Sample street 5,">Sample street 5,</div>
+						</td>
+					</tr>
+                    <tr class="slds-hint-parent">
+						<th data-label="Opportunity Name" scope="row">
+							<div class="slds-truncate" title="Core">Core</div>
+						</th>
+						<td data-label="Account Name">
+							<div class="slds-truncate" title="4/4/2021">4/3/2021</div>
+						</td>
+						<td data-label="Close Date">
+							<div class="slds-truncate" title="3/5/2021">3/4/2021</div>
+						</td>
+						<td data-label="Prospecting">
+							<div class="slds-truncate" title="1000">1000</div>
+						</td>
+						<td data-label="Confidence">
+							<div class="slds-truncate" title="1.225">1.225</div>
+						</td>
+						<td data-label="Amount">
+							<div class="slds-truncate" title="GBP">GBP</div>
+						</td>
+						<td data-label="Contact">
+							<div class="slds-truncate" title="Future">Live</div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="checkbox">
+                                <lightning-input type="checkbox" name="input1"></lightning-input>
+                            </div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="Sample street 5,">Sample street 5,</div>
+						</td>
+					</tr>
+                    <tr class="slds-hint-parent">
+						<th data-label="Opportunity Name" scope="row">
+							<div class="slds-truncate" title="Core">Manual</div>
+						</th>
+						<td data-label="Account Name">
+							<div class="slds-truncate" title="4/4/2021">4/2/2021</div>
+						</td>
+						<td data-label="Close Date">
+							<div class="slds-truncate" title="3/5/2021">3/3/2021</div>
+						</td>
+						<td data-label="Prospecting">
+							<div class="slds-truncate" title="1000">1000</div>
+						</td>
+						<td data-label="Confidence">
+							<div class="slds-truncate" title="1.225">1.225</div>
+						</td>
+						<td data-label="Amount">
+							<div class="slds-truncate" title="GBP">GBP</div>
+						</td>
+						<td data-label="Contact">
+							<div class="slds-truncate" title="Future">Historic</div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="checkbox">
+                                <lightning-input type="checkbox" name="input1"></lightning-input>
+                            </div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="Sample street 5,">Sample street 5,</div>
+						</td>
+					</tr>
+                    <tr class="slds-hint-parent">
+						<th data-label="Opportunity Name" scope="row">
+							<div class="slds-truncate" title="Core">Manual</div>
+						</th>
+						<td data-label="Account Name">
+							<div class="slds-truncate" title="4/4/2021">4/1/2021</div>
+						</td>
+						<td data-label="Close Date">
+							<div class="slds-truncate" title="3/5/2021">3/2/2021</div>
+						</td>
+						<td data-label="Prospecting">
+							<div class="slds-truncate" title="1000">1000</div>
+						</td>
+						<td data-label="Confidence">
+							<div class="slds-truncate" title="1.225">1.225</div>
+						</td>
+						<td data-label="Amount">
+							<div class="slds-truncate" title="GBP">GBP</div>
+						</td>
+						<td data-label="Contact">
+							<div class="slds-truncate" title="Future">Historic</div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="checkbox">
+                                <lightning-input type="checkbox" name="input1"></lightning-input>
+                            </div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="Sample street 5,">Sample street 5,</div>
+						</td>
+					</tr>
+                    <tr class="slds-hint-parent">
+						<th data-label="Opportunity Name" scope="row">
+							<div class="slds-truncate" title="Core">Manual</div>
+						</th>
+						<td data-label="Account Name">
+							<div class="slds-truncate" title="4/4/2021">4/12/2021</div>
+						</td>
+						<td data-label="Close Date">
+							<div class="slds-truncate" title="3/5/2021">3/1/2021</div>
+						</td>
+						<td data-label="Prospecting">
+							<div class="slds-truncate" title="1000">1000</div>
+						</td>
+						<td data-label="Confidence">
+							<div class="slds-truncate" title="1.225">1.225</div>
+						</td>
+						<td data-label="Amount">
+							<div class="slds-truncate" title="GBP">GBP</div>
+						</td>
+						<td data-label="Contact">
+							<div class="slds-truncate" title="Future">Historic</div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="checkbox">
+                                <lightning-input type="checkbox" name="input1"></lightning-input>
+                            </div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="Sample street 5,">Sample street 5,</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<!-- End Table-->
+		</lightning-accordion-section>
+		<lightning-accordion-section name="B" label="Caustic Soda 35% INN (25545854)">
+			<lightning-button label="Open Q pricing" title="Non-primary action"
+				class="slds-m-left_x-small slds-float_right" style="margin-top: -2%;"></lightning-button>
+			<lightning-layout>
+				<lightning-layout-item padding="around-small">
+					<div class="header-column">
+						<p class="field-title" title="Pack weight">Pack weight</p>
+						<p>1000</p>
+					</div>
+				</lightning-layout-item>
+				<lightning-layout-item padding="around-small">
+					<div class="header-column">
+						<p class="field-title" title="Price Unit of Measure">Price Unit of Measure</p>
+						<p>Tonne</p>
+					</div>
+				</lightning-layout-item>
+				<lightning-layout-item padding="around-small">
+					<div class="header-column">
+						<p class="field-title" title="Is Bulk">Is Bulk</p>
+						<p></p>
+					</div>
+				</lightning-layout-item>
+				<lightning-layout-item padding="around-small">
+					<div class="header-column">
+						<p class="field-title" title="ESQ">ESQ</p>
+						<p>1000</p>
+					</div>
+				</lightning-layout-item>
+				<lightning-layout-item padding="around-small">
+					<div class="header-column">
+						<p class="field-title" title="Periodic calculation date">Periodic calculation date</p>
+						<p>21/3/2021</p>
+					</div>
+				</lightning-layout-item>
+			</lightning-layout>
+			<!--Table Start-->
+			<table class="slds-table slds-no-row-hover slds-table_bordered slds-table_col-bordered"
+				aria-label="Example table of Opportunities with vertical borders">
+				<thead>
+					<tr class="slds-line-height_reset">
+						<th class="" scope="col">
+							<div class="slds-truncate" title="Profile">Profile</div>
+						</th>
+						<th class="" scope="col">
+							<div class="slds-truncate" title="Effective Date">Effective Date</div>
+						</th>
+						<th class="" scope="col">
+							<div class="slds-truncate" title="Expiry Date">Expiry Date</div>
+						</th>
+						<th class="" scope="col">
+							<div class="slds-truncate" title="Volume (kg)">Volume (kg)</div>
+						</th>
+						<th class="" scope="col">
+							<div class="slds-truncate" title="Price (kg)">Price (kg)</div>
+						</th>
+						<th class="" scope="col">
+							<div class="slds-truncate" title="Currency">Currency</div>
+						</th>
+						<th class="" scope="col">
+							<div class="slds-truncate" title="Status">Status</div>
+						</th>
+                        <th class="" scope="col">
+							<div class="slds-truncate" title="IsEXW">IsEXW</div>
+						</th>
+                        <th class="" scope="col">
+							<div class="slds-truncate" title="Address">Address</div>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="slds-hint-parent">
+						<th data-label="Opportunity Name" scope="row">
+							<div class="slds-truncate" title="Core">Core</div>
+						</th>
+						<td data-label="Account Name">
+							<div class="slds-truncate" title="4/4/2021">4/4/2021</div>
+						</td>
+						<td data-label="Close Date">
+							<div class="slds-truncate" title="3/5/2021">3/5/2021</div>
+						</td>
+						<td data-label="Prospecting">
+							<div class="slds-truncate" title="1000">1000</div>
+						</td>
+						<td data-label="Confidence">
+							<div class="slds-truncate" title="1.225">1.225</div>
+						</td>
+						<td data-label="Amount">
+							<div class="slds-truncate" title="GBP">GBP</div>
+						</td>
+						<td data-label="Contact">
+							<div class="slds-truncate" title="Future">Future</div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="checkbox">
+                                <lightning-input type="checkbox" name="input1"></lightning-input>
+                            </div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="Sample street 5,">Sample street 5,</div>
+						</td>
+					</tr>
+                    <tr class="slds-hint-parent">
+						<th data-label="Opportunity Name" scope="row">
+							<div class="slds-truncate" title="Core">Core</div>
+						</th>
+						<td data-label="Account Name">
+							<div class="slds-truncate" title="4/4/2021">4/3/2021</div>
+						</td>
+						<td data-label="Close Date">
+							<div class="slds-truncate" title="3/5/2021">3/4/2021</div>
+						</td>
+						<td data-label="Prospecting">
+							<div class="slds-truncate" title="1000">1000</div>
+						</td>
+						<td data-label="Confidence">
+							<div class="slds-truncate" title="1.225">1.225</div>
+						</td>
+						<td data-label="Amount">
+							<div class="slds-truncate" title="GBP">GBP</div>
+						</td>
+						<td data-label="Contact">
+							<div class="slds-truncate" title="Future">Live</div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="checkbox">
+                                <lightning-input type="checkbox" name="input1"></lightning-input>
+                            </div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="Sample street 5,">Sample street 5,</div>
+						</td>
+					</tr>
+                    <tr class="slds-hint-parent">
+						<th data-label="Opportunity Name" scope="row">
+							<div class="slds-truncate" title="Core">Manual</div>
+						</th>
+						<td data-label="Account Name">
+							<div class="slds-truncate" title="4/4/2021">4/2/2021</div>
+						</td>
+						<td data-label="Close Date">
+							<div class="slds-truncate" title="3/5/2021">3/3/2021</div>
+						</td>
+						<td data-label="Prospecting">
+							<div class="slds-truncate" title="1000">1000</div>
+						</td>
+						<td data-label="Confidence">
+							<div class="slds-truncate" title="1.225">1.225</div>
+						</td>
+						<td data-label="Amount">
+							<div class="slds-truncate" title="GBP">GBP</div>
+						</td>
+						<td data-label="Contact">
+							<div class="slds-truncate" title="Future">Historic</div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="checkbox">
+                                <lightning-input type="checkbox" name="input1"></lightning-input>
+                            </div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="Sample street 5,">Sample street 5,</div>
+						</td>
+					</tr>
+                    <tr class="slds-hint-parent">
+						<th data-label="Opportunity Name" scope="row">
+							<div class="slds-truncate" title="Core">Manual</div>
+						</th>
+						<td data-label="Account Name">
+							<div class="slds-truncate" title="4/4/2021">4/1/2021</div>
+						</td>
+						<td data-label="Close Date">
+							<div class="slds-truncate" title="3/5/2021">3/2/2021</div>
+						</td>
+						<td data-label="Prospecting">
+							<div class="slds-truncate" title="1000">1000</div>
+						</td>
+						<td data-label="Confidence">
+							<div class="slds-truncate" title="1.225">1.225</div>
+						</td>
+						<td data-label="Amount">
+							<div class="slds-truncate" title="GBP">GBP</div>
+						</td>
+						<td data-label="Contact">
+							<div class="slds-truncate" title="Future">Historic</div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="checkbox">
+                                <lightning-input type="checkbox" name="input1"></lightning-input>
+                            </div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="Sample street 5,">Sample street 5,</div>
+						</td>
+					</tr>
+                    <tr class="slds-hint-parent">
+						<th data-label="Opportunity Name" scope="row">
+							<div class="slds-truncate" title="Core">Manual</div>
+						</th>
+						<td data-label="Account Name">
+							<div class="slds-truncate" title="4/4/2021">4/12/2021</div>
+						</td>
+						<td data-label="Close Date">
+							<div class="slds-truncate" title="3/5/2021">3/1/2021</div>
+						</td>
+						<td data-label="Prospecting">
+							<div class="slds-truncate" title="1000">1000</div>
+						</td>
+						<td data-label="Confidence">
+							<div class="slds-truncate" title="1.225">1.225</div>
+						</td>
+						<td data-label="Amount">
+							<div class="slds-truncate" title="GBP">GBP</div>
+						</td>
+						<td data-label="Contact">
+							<div class="slds-truncate" title="Future">Historic</div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="checkbox">
+                                <lightning-input type="checkbox" name="input1"></lightning-input>
+                            </div>
+						</td>
+                        <td data-label="Contact">
+							<div class="slds-truncate" title="Sample street 5,">Sample street 5,</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<!-- End Table-->
+		</lightning-accordion-section>
+	</lightning-accordion>
+</template>

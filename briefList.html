@@ -1,0 +1,69 @@
+<template>
+    <template if:true={briefList}>
+        <lightning-datatable data={briefList} columns={columns} key-field="Id"
+                onheaderaction={handleHeaderAction} column-widths-mode="fixed">
+        </lightning-datatable>
+    </template>
+    <template if:true={error}>
+            {error}
+    </template>
+
+    <template if:true={isModalOpen}>
+            <!-- Modal/Popup Box LWC starts here -->
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                    aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container">
+                            <template if:true={textModal}>
+                                    <!-- Modal/Popup Box LWC body starts here -->
+                                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                            <lightning-input type="text" label={filterValueName} value=""
+                                                    class="filter_input"></lightning-input>
+                                    </div>
+                            </template>
+                            <template if:true={picklistModal}>
+                                    <!-- Modal/Popup Box LWC body starts here -->
+
+                                    <!-- <lightning-input type="text" label={filterValueName} value="" class="filter_input"></lightning-input> -->
+                                    <template if:true={picklistUrgencyModal}>
+                                            <div class="slds-modal__content slds-p-around_medium" style="overflow: visible;"
+                                                    id="modal-content-id-2">
+                                                    <lightning-combobox name="progress" label="Status" value={value}
+                                                            placeholder="Select Progress" options={urgencyPickVal}
+                                                            class="filter_input"></lightning-combobox>
+                                            </div>
+                                    </template>
+                                    <template if:true={picklistStatusModal}>
+                                            <div class="slds-modal__content slds-p-around_medium" style="overflow: visible;"
+                                                    id="modal-content-id-3">
+                                                    <lightning-combobox name="progress" label="Status" value={value}
+                                                            placeholder="Select Progress" options={statusPickVal}
+                                                            class="filter_input"></lightning-combobox>
+                                            </div>
+                                    </template>
+                            </template>
+                            <template if:true={numberModal}>
+                                    <!-- Modal/Popup Box LWC body starts here -->
+                                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-4">
+                                            <lightning-input type="number" label={filterValueName} value=""
+                                                    class="filter_input"></lightning-input>
+                                    </div>
+                            </template>
+                            <template if:true={dateModal}>
+                                    <!-- Modal/Popup Box LWC body starts here -->
+                                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-5">
+                                            <lightning-input type="date" label={filterValueName} value=""
+                                                    class="filter_input"></lightning-input>
+                                    </div>
+                            </template>
+                            <!-- Modal/Popup Box LWC footer starts here -->
+                            <footer class="slds-modal__footer">
+                                    <button class="slds-button slds-button_neutral" onclick={closeModal}
+                                            title="Cancel">Cancel</button>
+                                    <button class="slds-button slds-button_brand" onclick={submitDetails}
+                                            title="OK">OK</button>
+                            </footer>
+                    </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

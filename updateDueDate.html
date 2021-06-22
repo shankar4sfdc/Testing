@@ -1,0 +1,31 @@
+<template>
+    <lightning-spinner alternative-text="Loading" size="small" variant="brand" if:true={showSpinner}></lightning-spinner>
+	<div role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal slds-fade-in-open slds-modal--medium">
+		<div class="modal-container slds-modal__container">
+			<!-- Modal Header -->
+			<div class="slds-modal__header">
+				
+				<h2 id="header43" class="slds-text-heading--medium">Update Due Date</h2>
+			</div>
+			<!-- / Modal Header -->
+			<!-- Modal Content -->
+			<div class="slds-modal__content slds-p-around--medium">
+                
+                <lightning-input type="date" name="input1"
+                    variant="label-hidden" data-id="dueDate" onchange={updateValues}></lightning-input>
+                
+			</div>
+			<!-- / Modal Content -->
+			<!-- Modal Footer -->
+			<div class="slds-modal__footer">
+				
+				<lightning-button label="Cancel" title="Cancel" onclick={navigateToBriefRelatedList} class="slds-m-left_x-small"></lightning-button>
+                &nbsp;&nbsp;<button class="slds-button slds-button--brand" onclick={updateBrief}>Update</button>
+
+			</div>
+			<!-- / Modal Footer -->
+		</div>
+	</div>
+    <!-- / Modal -->
+    <div class="slds-backdrop slds-backdrop--open"></div>
+</template>

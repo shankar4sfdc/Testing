@@ -1,0 +1,50 @@
+<!-- This is the HTML component for the complaints LWC-->
+<template>
+
+    <lightning-accordion class="example-accordion"
+                         onsectiontoggle={handleToggleSection}
+                         active-section-name="B">
+        <lightning-accordion-section name="A" label={openSizeTxt}>
+            <ul class="slds-m-around_medium">
+                <template for:each={openComplaintsRecord} for:item="complaint">
+                    <li if:true={it.first} key={complaint.complaintID}>
+                        <div class="slds-tile">
+                            <h3 class="slds-tile__title slds-truncate" title={complaint.qMSDText}><a href="javascript:void(0);">{complaint.qMSDText}</a></h3>
+                            <div class="slds-tile__detail slds-clearfix" dropzone="tile body">
+                                <div class="canvas-element" closertotopclass="canvas-element--closer-to-top">
+                                    <div class="slds-m-bottom_medium" style="font-size: 0.8125rem;">
+                                        <p>Material: <strong>{complaint.materialName}</strong></p>
+                                        <p>Started: {complaint.complaintStart} - Closed: {complaint.closedDate}</p>
+                                        <p>About: {complaint.shortText}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </template>
+            </ul>
+        </lightning-accordion-section>
+
+        <lightning-accordion-section name="B" label={closedSizeTxt}>
+            <ul class="slds-m-around_medium">
+                <template for:each={closedComplaintsRecord} for:item="complaint">
+                    <li key={complaint.complaintID}>
+                        <div class="slds-tile">
+                            <h3 class="slds-tile__title slds-truncate" title={complaint.qMSDText}><a href="javascript:void(0);">{complaint.qMSDText}</a></h3>
+                            <div class="slds-tile__detail slds-clearfix" dropzone="tile body">
+                                <div class="canvas-element" closertotopclass="canvas-element--closer-to-top">
+                                    <div class="slds-m-bottom_medium" style="font-size: 0.8125rem;">
+                                        <p>Material: <strong>{complaint.materialName}</strong></p>
+                                        <p>Started: {complaint.complaintStart} - Closed: {complaint.closedDate}</p>
+                                        <p>About: {complaint.shortText}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </template>
+            </ul>
+        </lightning-accordion-section>
+    </lightning-accordion>
+    
+</template>
