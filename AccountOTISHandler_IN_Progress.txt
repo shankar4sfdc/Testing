@@ -1,0 +1,120 @@
+public class AccountOTIFSHandler {
+    
+    @AuraEnabled public List<String> months;
+    @AuraEnabled 
+    public static List<OTIFDataTableWrapper> getOTIFs(String briefId){
+       system.debug('@@ '+briefId);
+
+        Set<String> univarProductName = new Set<String>();
+        
+        Brief__c brief = [SELECT Id, Account__r.Id from Brief__C WHERE Id = :briefId];
+        
+        Account acc = [SELECT Id,AccountNumber,SalesOrg__c,Customer_Code__c from Account WHERE Id = : brief.Account__r.Id];
+        
+        system.debug('Account Id:'+acc.Id);
+        
+        for(Opportunity opp : [SELECT Univar_Product__c,Univar_Product__r.Name, AccountId, Id FROM Opportunity WHERE AccountId =: brief.Account__r.Id]){
+            if(opp.Univar_Product__c != null && String.isNotBlank(opp.Univar_Product__r.Name)){
+                univarProductName.add(opp.Univar_Product__r.Name);
+            }
+        }       
+        
+        String json = DataWareHouseIntegration.callDWForOTIFsAPI(acc.Id, acc.SalesOrg__c);
+
+        /*String json = '[{"material":"SALT PDV IND 1K BLK",' +
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2020-03-01T00:00:00","value":95.0},' +
+                        '{"material":"SALT PDV IND 1K BLK",' +
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2020-04-01T00:00:00",' + 
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' + 
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2020-05-01T00:00:00",' +
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' + 
+                        '"cpp":"CPP","month":"2020-06-01T00:00:00",' + 
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2020-07-01T00:00:00",' +
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2020-08-01T00:00:00",' +
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' + 
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2020-09-01T00:00:00",' +
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2020-10-01T00:00:00",' +
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' + 
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2020-11-01T00:00:00",' + 
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2020-12-01T00:00:00",' +
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2021-01-01T00:00:00",' +
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2021-02-01T00:00:00","value":95.0}]';*/
+
+        List<oTIFIntegrationWrapper> oTIFIntegrationWrapperList = (List<oTIFIntegrationWrapper>)System.JSON.deserialize(json, List<oTIFIntegrationWrapper>.class);
+        List<OTIFDataTableWrapper> oTIFDataTable = new List<OTIFDataTableWrapper>();
+        
+        for(OTIFIntegrationWrapper oiw:oTIFIntegrationWrapperList)
+        {
+            OTIFDataTableWrapper oTIFData = new OTIFDataTableWrapper();
+            String materialName = oiw.univarProduct;
+            List<Decimal> valueOfMonths = new List<Decimal>();
+            List<String> nameOfMonths = new List<String>();
+            
+            for(OTIFIntegrationWrapper o:oTIFIntegrationWrapperList)
+            {
+                if(materialName==o.univarProduct)
+                {
+                   valueOfMonths.add(o.value);
+                   String yearOfProduct =  String.valueOf(o.month.year());
+                   String monthYear = o.month.month() + '-' + yearOfProduct.substring(2,2);
+                   nameOfMonths.add(monthYear);
+                }    
+                    
+            }
+            
+            oTIFData.material = materialName;
+            oTIFData.value_Of_Months = valueOfMonths;
+            oTIFData.name_Of_Months = nameOfMonths;
+            
+            system.debug('oTIFData object added:'+oTIFData);   
+            
+            oTIFDataTable.add(oTIFData);
+        }
+        
+        return oTIFDataTable;        
+    }
+    
+    
+    public Class oTIFIntegrationWrapper {
+        @AuraEnabled public String univarProduct;
+        @AuraEnabled public String cPP;
+        @AuraEnabled public DateTime month;
+        @AuraEnabled public Decimal value;
+    }
+
+    public Class oTIFDataTableWrapper {
+        @AuraEnabled public String material;
+        @AuraEnabled public List<Decimal> value_Of_Months;
+        @AuraEnabled public List<String> name_Of_Months;
+        /*@AuraEnabled public Decimal value_Month_2;
+        @AuraEnabled public Decimal value_Month_3;
+        @AuraEnabled public Decimal value_Month_4;
+        @AuraEnabled public Decimal value_Month_5;
+        @AuraEnabled public Decimal value_Month_6;
+        @AuraEnabled public Decimal value_Month_7;
+        @AuraEnabled public Decimal value_Month_8;
+        @AuraEnabled public Decimal value_Month_9;
+        @AuraEnabled public Decimal value_Month_10;
+        @AuraEnabled public Decimal value_Month_11;
+        @AuraEnabled public Decimal value_Month_12;*/
+    }     
+
+}
