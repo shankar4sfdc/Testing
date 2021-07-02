@@ -1,0 +1,100 @@
+<aura:component controller="jsonformatterforLC" access="global">
+    <aura:attribute name="listOfRecords" type="list"/> 
+    <aura:attribute name="listOfHeaders" type="string[]"/>  
+    <aura:attribute name="NoRecordsFound" type="boolean"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>   
+    
+    <aura:if isTrue="{!v.NoRecordsFound}">
+        <!--display error message if there is no records available -->
+        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_info" role="alert">
+            <span class="slds-assistive-text">error</span>
+            <h2>No record found.</h2>
+        </div>
+        <aura:set attribute="else">
+            <div class="slds">
+                <table class="slds-table slds-table--bordered">    	
+                    <thead>
+                        <tr class="slds-text-heading--label">            	
+                            <aura:iteration items="{!v.listOfHeaders}" var="col">                     
+                                <th class="{!col.cssClass}"> {!col} </th>  
+                            </aura:iteration>                
+                        </tr>     	 
+                    </thead>
+                    <tbody>
+                        <!-- Limitation - we cannot use indexvar of iterator control to refer header json information else, instead of defining css class for each column, we could have used it from header only -->
+                        <aura:iteration items="{!v.listOfRecords}" var="row" indexVar="index">
+                            
+                            <tr class="slds-hint-parent"> 
+                                <th scope="row">
+                                    <div class="slds-truncate" title="Material">
+                                        {!row.material}
+                                    </div>
+                            	</th>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="Mar">
+                                        {!row.month3}
+                                    </div>
+                            	</th>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="Mar">
+                                        {!row.month4}
+                                    </div>
+                            	</th>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="Mar">
+                                        {!row.month5}
+                                    </div>
+                            	</th>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="Mar">
+                                        {!row.month6}
+                                    </div>
+                            	</th>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="Mar">
+                                        {!row.month7}
+                                    </div>
+                            	</th>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="Mar">
+                                        {!row.month8}
+                                    </div>
+                            	</th>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="Mar">
+                                        {!row.month9}
+                                    </div>
+                            	</th>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="Mar">
+                                        {!row.month10}
+                                    </div>
+                            	</th>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="Mar">
+                                        {!row.month11}
+                                    </div>
+                            	</th>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="Mar">
+                                        {!row.month12}
+                                    </div>
+                            	</th>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="Mar">
+                                        {!row.month1}
+                                    </div>
+                            	</th>
+                                <th scope="row">
+                                    <div class="slds-truncate" title="Mar">
+                                        {!row.month2}
+                                    </div>
+                            	</th>
+                            </tr>
+                        </aura:iteration>
+                    </tbody>    
+                </table>
+            </div>
+        </aura:set>
+    </aura:if>
+</aura:component>
