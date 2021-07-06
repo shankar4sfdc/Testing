@@ -1,0 +1,155 @@
+public class AccountSalesHistoryHandler {
+    @AuraEnabled 
+    public static List<ordersDataTableWrapper> getSalesHistory(String briefId){
+        system.debug('@@ '+briefId);
+
+        /*Set<String> univarProductName = new Set<String>();
+        
+        Brief__c brief = [SELECT Id, Account__r.Id from Brief__C WHERE Id = :briefId];
+        
+        Account acc = [SELECT Id,AccountNumber,SalesOrg__c,Customer_Code__c from Account WHERE Id = : brief.Account__r.Id];
+        
+        system.debug('Account Id:'+acc.Id);      
+
+        String json = DataWareHouseIntegration.callDWForOTIFsAPI(acc.Customer_Code__c,acc.SalesOrg__c);*/
+        
+		//List<DataWareHouseIntegration.DWSalesHistory> salesHistoryList = DataWareHouseIntegration.callDWForSalesHistoryAPI('10062158','313327','GB01');
+        // Original Response from above JSON call- {"type":null,"vol":880.00000,"sales":3036.00207,"gp":462.90136,"gpPerTonne":934.95293,"gpPerc":15.24701}
+      
+        string json = '[{"type":"open orders","vol":880.00000,"sales":3036.00207,"gp":462.90136,"gpPerTonne":934.95293,"gpPerc":15.24701},' +
+                      '{"type":"current month sold","vol":880.00000,"sales":3036.00207,"gp":462.90136,"gpPerTonne":934.95293,"gpPerc":15.24701},' +
+                      '{"type":"Last 12 months sold","vol":880.00000,"sales":3036.00207,"gp":462.90136,"gpPerTonne":934.95293,"gpPerc":15.24701},' +
+                      '{"type":"Last 13 to 24m sold","vol":880.00000,"sales":3036.00207,"gp":462.90136,"gpPerTonne":934.95293,"gpPerc":15.24701}]';
+        
+         DataWareHouseIntegration.DWSalesHistory dWSalesHist = new DataWareHouseIntegration.DWSalesHistory();
+         List<DataWareHouseIntegration.DWSalesHistory> salesHistoryList = dWSalesHist.parse(json);        
+        
+        //List<DataWareHouseIntegration.DWSalesHistory> salesHistoryList  
+        /*String json = '[{"material":"SALT PDV IND 1K BLK",' +
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2020-03-01T00:00:00","value":95.0},' +
+                        '{"material":"SALT PDV IND 1K BLK",' +
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2020-04-01T00:00:00",' + 
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' + 
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2020-05-01T00:00:00",' +
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' + 
+                        '"cpp":"CPP","month":"2020-06-01T00:00:00",' + 
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2020-07-01T00:00:00",' +
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2020-08-01T00:00:00",' +
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' + 
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2020-09-01T00:00:00",' +
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2020-10-01T00:00:00",' +
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' + 
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2020-11-01T00:00:00",' + 
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2020-12-01T00:00:00",' +
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2021-01-01T00:00:00",' +
+                        '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+                        '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+                        '"cpp":"CPP","month":"2021-02-01T00:00:00","value":95.0}]';*/
+        
+        system.debug('DWSalesHistoryList returned is:' + salesHistoryList);   
+       
+ 
+            List<ordersDataTableWrapper> dsm = new List<ordersDataTableWrapper>();
+            //dsm.material = str;
+            //headerValues.add('Material Name');
+            for(Integer index = 0; index < salesHistoryList.size(); index++)
+            {
+                ordersDataTableWrapper dsSales = new ordersDataTableWrapper();
+		ordersDataTableWrapper dsVol = new ordersDataTableWrapper();
+		ordersDataTableWrapper dsGP = new ordersDataTableWrapper();
+		ordersDataTableWrapper dsGPPerTonne = new ordersDataTableWrapper();
+		ordersDataTableWrapper dsGPPerc = new ordersDataTableWrapper();
+                    
+                    if(!String.isBlank(salesHistoryList[index].type))
+                    {
+                    switch on salesHistoryList[index].type {
+                        when 'open orders'{
+                            dsSales.Metric='Sales'; 
+                            dsSales.val_Open_Orders = salesHistoryList[index].sales;
+                            dsVol.Metric='Vol'; 
+                            dsVol.val_Open_Orders = salesHistoryList[index].Vol;
+                            dsGP.Metric='GP'; 
+                            dsGP.val_Open_Orders = salesHistoryList[index].GP;
+                            dsGPPerTonne.Metric='GPPerTonne'; 
+                            dsGPPerTonne.val_Open_Orders = salesHistoryList[index].GPPerTonne;
+                            dsGPPerc.Metric='GPPerc'; 
+                            dsGPPerc.val_Open_Orders = salesHistoryList[index].GPPerc;
+                        }
+                        when 'current month sold'{
+                            dsSales.Metric='Sales'; 
+                            dsSales.val_Current_Month_Sold = salesHistoryList[index].sales;
+                            dsVol.Metric='Vol'; 
+                            dsVol.val_Current_Month_Sold = salesHistoryList[index].Vol;
+                            dsGP.Metric='GP'; 
+                            dsGP.val_Current_Month_Sold = salesHistoryList[index].GP;
+                            dsGPPerTonne.Metric='GPPerTonne'; 
+                            dsGPPerTonne.val_Current_Month_Sold = salesHistoryList[index].GPPerTonne;
+                            dsGPPerc.Metric='GPPerc'; 
+                            dsGPPerc.val_Current_Month_Sold = salesHistoryList[index].GPPerc;
+                        }
+                        when 'Last 12 months sold'{
+                            dsSales.Metric='Sales'; 
+                            dsSales.val_Last_12_Month_Sold = salesHistoryList[index].sales;
+                            dsVol.Metric='Vol'; 
+                            dsVol.val_Last_12_Month_Sold = salesHistoryList[index].Vol;
+                            dsGP.Metric='GP'; 
+                            dsGP.val_Last_12_Month_Sold = salesHistoryList[index].GP;
+                            dsGPPerTonne.Metric='GPPerTonne'; 
+                            dsGPPerTonne.val_Last_12_Month_Sold = salesHistoryList[index].GPPerTonne;
+                            dsGPPerc.Metric='GPPerc'; 
+                            dsGPPerc.val_Last_12_Month_Sold = salesHistoryList[index].GPPerc;
+                        }
+                        when 'Last 13 to 24m sold'{
+                            dsSales.Metric='Sales'; 
+                            dsSales.val_Last_13_24_Month_Sold = salesHistoryList[index].sales;
+                            dsVol.Metric='Vol'; 
+                            dsVol.val_Last_13_24_Month_Sold = salesHistoryList[index].Vol;
+                            dsGP.Metric='GP'; 
+                            dsGP.val_Last_13_24_Month_Sold = salesHistoryList[index].GP;
+                            dsGPPerTonne.Metric='GPPerTonne'; 
+                            dsGPPerTonne.val_Last_13_24_Month_Sold = salesHistoryList[index].GPPerTonne;
+                            dsGPPerc.Metric='GPPerc'; 
+                            dsGPPerc.val_Last_13_24_Month_Sold = salesHistoryList[index].GPPerc;
+                        }
+                	}
+                
+                dsm.add(dsSales);
+                dsm.add(dsVol);
+                dsm.add(dsGP);
+                dsm.add(dsGPPerTonne);
+		        dsm.add(dsGPPerc);
+                    }          
+            }            
+        
+        for(ordersDataTableWrapper odw:dsm)
+        {
+          system.debug('ordersDataTableWrapper created is:'+odw);
+        }    
+
+        return dsm;      
+    }    
+    
+    public Class ordersDataTableWrapper {
+        @AuraEnabled public String Metric {get;set;}
+        @AuraEnabled public Decimal val_Open_Orders {get;set;}
+        @AuraEnabled public Decimal val_Current_Month_Sold {get;set;}
+        @AuraEnabled public Decimal val_Last_12_Month_Sold {get;set;}
+        @AuraEnabled public Decimal val_Last_13_24_Month_Sold {get;set;}
+    }     
+}
