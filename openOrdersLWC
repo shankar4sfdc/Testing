@@ -1,0 +1,177 @@
+Component code---------------
+<aura:component controller="AccountSalesHistoryHandler" access="global">
+    <aura:attribute name="listOfRecords" type="list"/>
+    <aura:attribute name="listOfHeaders" type="string[]"/>  
+    <aura:attribute name="NoRecordsFound" type="boolean"/>
+   
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>  
+   
+    <aura:if isTrue="{!v.NoRecordsFound}">
+        <!--display error message if there is no records available -->
+        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_info" role="alert">
+            <span class="slds-assistive-text">error</span>
+            <h2>No record found.</h2>
+        </div>
+        <aura:set attribute="else">
+            <div style="height: 300px">
+                <lightning:datatable
+                                     keyField="id"
+                                     data="{! v.listOfRecords }"
+                                     columns="{! v.listOfHeaders }"
+                                     hideCheckboxColumn="true"/>
+            </div>
+        </aura:set>
+    </aura:if>
+</aura:component>
+-------------Component code ends--------
+-------------js contorller starts-------------
+({
+doInit : function(component, event, helper) {
+helper.doInit(component, event, helper);
+}
+})
+-------------controller js ends-----------
+-------------helper js starts---------
+({
+doInit : function(component, event, helper) {
+        component.set('v.listOfHeaders', [
+            {label: 'Metrics', fieldName: 'Metric', type: 'text'},
+            {label: 'open orders', fieldName: 'val_Open_Orders', type: 'integer'},
+            {label: 'current month sold', fieldName: 'val_Current_Month_Sold', type: 'integer'},
+            {label: 'Last 12 months sold', fieldName: 'val_Last_12_Month_Sold', type: 'integer'},
+            {label: 'Last 13 to 24m sold', fieldName: 'val_Last_13_24_Month_Sold', type: 'integer'}
+        ]);
+        var action = component.get("c.getSalesHistory");
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if (state === "SUCCESS"){
+                var result = response.getReturnValue();
+                    console.log('--result---'+result.length);
+                if(result.length > 0){
+                    console.log('--result---'+JSON.stringify(result));
+                    component.set('v.listOfRecords', result);
+                }else{
+                    // if there is no records then display message
+                    component.set("v.NoRecordsFound" , true);
+                }
+            }
+            else{
+                alert('Error...');
+            }
+        });
+        $A.enqueueAction(action);  
+},
+})
+--------------helper js ends---------------
+---------------apex class----------
+public class AccountSalesHistoryHandler {
+    @AuraEnabled
+    //public static List<ordersDataTableWrapper> getSalesHistory(String briefId){
+    public static List<ordersDataTableValuesWrapper> getSalesHistory(){
+        //system.debug('@@ '+briefId);
+       
+        string json = '[{"type":"open orders","vol":880.00000,"sales":3036.00207,"gp":462.90136,"gpPerTonne":934.95293,"gpPerc":15.24701},' +
+            '{"type":"current month sold","vol":880.00000,"sales":3036.00207,"gp":462.90136,"gpPerTonne":934.95293,"gpPerc":15.24701},' +
+            '{"type":"Last 12 months sold","vol":880.00000,"sales":3036.00207,"gp":462.90136,"gpPerTonne":934.95293,"gpPerc":15.24701},' +
+            '{"type":"Last 13 to 24m sold","vol":880.00000,"sales":3036.00207,"gp":462.90136,"gpPerTonne":934.95293,"gpPerc":15.24701}]';
+       
+        //DataWareHouseIntegration.DWSalesHistory dWSalesHist = new DataWareHouseIntegration.DWSalesHistory();
+        //List<DataWareHouseIntegration.DWSalesHistory> salesHistoryList = dWSalesHist.parse(json);        
+       
+        List<ordersDataTableWrapper> salesHistoryList = (List<ordersDataTableWrapper>)System.JSON.deserialize(json, List<ordersDataTableWrapper>.class);
+       
+        List<ordersDataTableValuesWrapper> dsm = new List<ordersDataTableValuesWrapper>();
+       
+        ordersDataTableValuesWrapper dsSales = new ordersDataTableValuesWrapper();
+        ordersDataTableValuesWrapper dsVol = new ordersDataTableValuesWrapper();
+        ordersDataTableValuesWrapper dsGP = new ordersDataTableValuesWrapper();
+        ordersDataTableValuesWrapper dsGPPerTonne = new ordersDataTableValuesWrapper();
+        ordersDataTableValuesWrapper dsGPPerc = new ordersDataTableValuesWrapper();
+        for(Integer index = 0; index < salesHistoryList.size(); index++)
+        {
+            system.debug('DWSalesHistoryList returned is:' + salesHistoryList[index]);  
+           
+            if(!String.isBlank(salesHistoryList[index].type))
+            {
+                switch on salesHistoryList[index].type {
+                    when 'open orders'{
+                        dsSales.Metric='Sales';
+                        dsSales.val_Open_Orders = salesHistoryList[index].sales;
+                        dsVol.Metric='Vol';
+                        dsVol.val_Open_Orders = salesHistoryList[index].Vol;
+                        dsGP.Metric='GP';
+                        dsGP.val_Open_Orders = salesHistoryList[index].GP;
+                        dsGPPerTonne.Metric='GPPerTonne';
+                        dsGPPerTonne.val_Open_Orders = salesHistoryList[index].GPPerTonne;
+                        dsGPPerc.Metric='GPPerc';
+                        dsGPPerc.val_Open_Orders = salesHistoryList[index].GPPerc;
+                    }
+                    when 'current month sold'{
+                        dsSales.Metric='Sales';
+                        dsSales.val_Current_Month_Sold = salesHistoryList[index].sales;
+                        dsVol.Metric='Vol';
+                        dsVol.val_Current_Month_Sold = salesHistoryList[index].Vol;
+                        dsGP.Metric='GP';
+                        dsGP.val_Current_Month_Sold = salesHistoryList[index].GP;
+                        dsGPPerTonne.Metric='GPPerTonne';
+                        dsGPPerTonne.val_Current_Month_Sold = salesHistoryList[index].GPPerTonne;
+                        dsGPPerc.Metric='GPPerc';
+                        dsGPPerc.val_Current_Month_Sold = salesHistoryList[index].GPPerc;
+                    }
+                    when 'Last 12 months sold'{
+                        dsSales.Metric='Sales';
+                        dsSales.val_Last_12_Month_Sold = salesHistoryList[index].sales;
+                        dsVol.Metric='Vol';
+                        dsVol.val_Last_12_Month_Sold = salesHistoryList[index].Vol;
+                        dsGP.Metric='GP';
+                        dsGP.val_Last_12_Month_Sold = salesHistoryList[index].GP;
+                        dsGPPerTonne.Metric='GPPerTonne';
+                        dsGPPerTonne.val_Last_12_Month_Sold = salesHistoryList[index].GPPerTonne;
+                        dsGPPerc.Metric='GPPerc';
+                        dsGPPerc.val_Last_12_Month_Sold = salesHistoryList[index].GPPerc;
+                    }
+                    when 'Last 13 to 24m sold'{
+                        dsSales.Metric='Sales';
+                        dsSales.val_Last_13_24_Month_Sold = salesHistoryList[index].sales;
+                        dsVol.Metric='Vol';
+                        dsVol.val_Last_13_24_Month_Sold = salesHistoryList[index].Vol;
+                        dsGP.Metric='GP';
+                        dsGP.val_Last_13_24_Month_Sold = salesHistoryList[index].GP;
+                        dsGPPerTonne.Metric='GPPerTonne';
+                        dsGPPerTonne.val_Last_13_24_Month_Sold = salesHistoryList[index].GPPerTonne;
+                        dsGPPerc.Metric='GPPerc';
+                        dsGPPerc.val_Last_13_24_Month_Sold = salesHistoryList[index].GPPerc;
+                    }
+                }
+               
+               
+            }  
+           
+        }            
+        dsm.add(dsVol);
+        dsm.add(dsSales);
+        dsm.add(dsGP);
+        dsm.add(dsGPPerTonne);
+        dsm.add(dsGPPerc);
+       
+        return dsm;      
+    }    
+   
+    public Class ordersDataTableWrapper {
+        @AuraEnabled public String type {get;set;}
+        @AuraEnabled public Decimal vol {get;set;}
+        @AuraEnabled public Decimal sales {get;set;}
+        @AuraEnabled public Decimal gp {get;set;}
+        @AuraEnabled public Decimal gpPerTonne {get;set;}
+        @AuraEnabled public Decimal gpPerc {get;set;}
+    }
+   
+    public Class ordersDataTableValuesWrapper {
+        @AuraEnabled public String Metric {get;set;}
+        @AuraEnabled public Decimal val_Open_Orders {get;set;}
+        @AuraEnabled public Decimal val_Current_Month_Sold {get;set;}
+        @AuraEnabled public Decimal val_Last_12_Month_Sold {get;set;}
+        @AuraEnabled public Decimal val_Last_13_24_Month_Sold {get;set;}
+    }
+}
+----------------apex class ends-----------------
