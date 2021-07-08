@@ -1,0 +1,315 @@
+public class AccountOTIFSHandler {
+   
+    @AuraEnabled
+    public static oTIFDataTableWrapperMonths getOTIFS(String briefId){
+    //public static oTIFDataTableWrapperMonths getOTIFS(){
+Customer_Code__c from Account WHERE Id = : brief.Account__r.Id];
+callDWForOTIFsAPI(acc.Customer_Code__c,acc.SalesOrg__c);
+01T00:00:00","value":95.0},' +
+01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 1K BLK",' +
+            '"cpp":"CPP","month":"2021-02-01T00:00:00",'+
+            '"value":95.0},{"material":"SALT PDV IND 12K",' +
+            '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+            '"cpp":"CPP","month":"2020-03-01T00:00:00",'+
+            '"value":95.0},{"material":"SALT PDV IND 12K",' +
+            '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+            '"cpp":"CPP","month":"2020-04-01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 12K",' +
+            '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+            '"cpp":"CPP","month":"2020-05-01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 12K",' +
+            '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+            '"cpp":"CPP","month":"2020-06-01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 12K",' +
+            '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+            '"cpp":"CPP","month":"2020-07-01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 12K",' +
+            '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+            '"cpp":"CPP","month":"2020-08-01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 12K",' +
+            '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+            '"cpp":"CPP","month":"2020-09-01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 12K",' +
+            '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+            '"cpp":"CPP","month":"2020-10-01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 12K",' +
+            '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+            '"cpp":"CPP","month":"2020-11-01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 12K",' +
+            '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+            '"cpp":"CPP","month":"2020-12-01T00:00:00",' +
+            '"value":95.0},{"material":"SALT PDV IND 10K",' +
+            '"univarProduct":"SALT PDV IND 1KG BULK - SAP",' +
+            '"cpp":"CPP","month":"2021-02-01T00:00:00","value":95.0}]';
+       
+        system.debug('JSON returned is:'+Json);
+       
+        List<oTIFIntegrationWrapper> oTIFIntegrationWrapperList = (List<oTIFIntegrationWrapper>)System.JSON.deserialize(json, List<oTIFIntegrationWrapper>.class);
+        system.debug('oTIFIntegrationWrapperList returned is:'+oTIFIntegrationWrapperList);
+       
+        map<String,List<oTIFIntegrationWrapper>> materialwiseData = new map<String,List<oTIFIntegrationWrapper>>();
+        for(oTIFIntegrationWrapper jw : oTIFIntegrationWrapperList)
+        {
+            //converting list to map based on material
+            if(materialwiseData.containsKey(jw.material))
+            {
+                List<oTIFIntegrationWrapper> monthValues = materialwiseData.get(jw.material);
+                monthValues.add(jw);
+                materialwiseData.put(jw.material, monthValues);
+            }
+            else
+            {
+                materialwiseData.put(jw.material, new List<oTIFIntegrationWrapper> { jw });
+            }
+        }
+       
+        List<oTIFDataTableWrapper> materialwiseList = new List<oTIFDataTableWrapper>();
+        List<String> monthNames = new List<String>{'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'};
+        Set<headerwrapper> headerValues = new Set<headerwrapper>();
+        Set<String> headerLabels = new Set<String>();
+       
+        for(string str : materialwiseData.keyset())
+        {
+            oTIFDataTableWrapper jwm = new oTIFDataTableWrapper();          
+            jwm.material = str;
+           
+            headerwrapper hwp = new headerwrapper();
+            hwp.label = 'Material(Code)';
+            hwp.fieldName = 'material';
+            hwp.type = 'text';
+           
+            if(!headerLabels.contains(hwp.label))            
+                headerValues.add(hwp);
+            headerLabels.add(hwp.label);
+            for(oTIFIntegrationWrapper jw : materialwiseData.get(str))
+            {
+                switch on jw.month.month() {
+                    when 1{
+                        jwm.value_Month_1 = jw.value;
+                        String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                       
+                        headerwrapper hwp1 = new headerwrapper();
+                        hwp1.label = hstr;
+                        hwp1.fieldName = 'value_Month_1';
+                        hwp1.type = 'text';
+                       
+                        if(!headerLabels.contains(hwp1.label))            
+                            headerValues.add(hwp1);
+                        headerLabels.add(hwp1.label);                        
+                    }
+                    when 2{
+                        jwm.value_Month_2 = jw.value;
+                        String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                       
+                        headerwrapper hwp2 = new headerwrapper();
+                        hwp2.label = hstr;
+                        hwp2.fieldName = 'value_Month_2';
+                        hwp2.type = 'text';
+                       
+                        if(!headerLabels.contains(hwp2.label))            
+                            headerValues.add(hwp2);
+                        headerLabels.add(hwp2.label);                        
+                    }
+                    when 3{
+                        jwm.value_Month_3 = jw.value;
+                        String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                       
+                        headerwrapper hwp3 = new headerwrapper();
+                        hwp3.label = hstr;
+                        hwp3.fieldName = 'value_Month_3';
+                        hwp3.type = 'text';
+                       
+                        if(!headerLabels.contains(hwp3.label))            
+                            headerValues.add(hwp3);
+                        headerLabels.add(hwp3.label);                      
+                    }
+                    when 4{
+                        jwm.value_Month_4 = jw.value;
+                        String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                       
+                        headerwrapper hwp4 = new headerwrapper();
+                        hwp4.label = hstr;
+                        hwp4.fieldName = 'value_Month_4';
+                        hwp4.type = 'text';
+                       
+                        if(!headerLabels.contains(hwp4.label))            
+                            headerValues.add(hwp4);
+                        headerLabels.add(hwp4.label);
+                    }
+                    when 5{
+                        jwm.value_Month_5 = jw.value;
+                        String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                       
+                        headerwrapper hwp5 = new headerwrapper();
+                        hwp5.label = hstr;
+                        hwp5.fieldName = 'value_Month_5';
+                        hwp5.type = 'text';
+                       
+                        if(!headerLabels.contains(hwp5.label))            
+                            headerValues.add(hwp5);
+                        headerLabels.add(hwp5.label);                      
+                    }
+                    when 6{
+                        jwm.value_Month_6 = jw.value;
+                        String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                       
+                        headerwrapper hwp6 = new headerwrapper();
+                        hwp6.label = hstr;
+                        hwp6.fieldName = 'value_Month_6';
+                        hwp6.type = 'text';
+                       
+                        if(!headerLabels.contains(hwp6.label))            
+                            headerValues.add(hwp6);
+                        headerLabels.add(hwp6.label);                      
+                    }
+                    when 7{
+                        jwm.value_Month_7 = jw.value;
+                        String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                       
+                        headerwrapper hwp7 = new headerwrapper();
+                        hwp7.label = hstr;
+                        hwp7.fieldName = 'value_Month_7';
+                        hwp7.type = 'text';
+                       
+                        if(!headerLabels.contains(hwp7.label))            
+                            headerValues.add(hwp7);
+                        headerLabels.add(hwp7.label);                      
+                    }
+                    when 8{
+                        jwm.value_Month_8 = jw.value;
+                        String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                       
+                        headerwrapper hwp8 = new headerwrapper();
+                        hwp8.label = hstr;
+                        hwp8.fieldName = 'value_Month_8';
+                        hwp8.type = 'text';
+                       
+                        if(!headerLabels.contains(hwp8.label))            
+                            headerValues.add(hwp8);
+                        headerLabels.add(hwp8.label);                        
+                    }
+                    when 9{
+                        jwm.value_Month_9 = jw.value;
+                        String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                       
+                        headerwrapper hwp9 = new headerwrapper();
+                        hwp9.label = hstr;
+                        hwp9.fieldName = 'value_Month_9';
+                        hwp9.type = 'text';
+                       
+                        if(!headerLabels.contains(hwp9.label))            
+                            headerValues.add(hwp9);
+                        headerLabels.add(hwp9.label);                        
+                    }
+                    when 10{
+                        jwm.value_Month_10 = jw.value;
+                        String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                       
+                        headerwrapper hwp10 = new headerwrapper();
+                        hwp10.label = hstr;
+                        hwp10.fieldName = 'value_Month_10';
+                        hwp10.type = 'text';
+                       
+                        if(!headerLabels.contains(hwp10.label))            
+                            headerValues.add(hwp10);
+                        headerLabels.add(hwp10.label);                      
+                    }
+                    when 11{
+                        jwm.value_Month_11 = jw.value;
+                        String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                       
+                        headerwrapper hwp11 = new headerwrapper();
+                        hwp11.label = hstr;
+                        hwp11.fieldName = 'value_Month_11';
+                        hwp11.type = 'text';
+                       
+                        if(!headerLabels.contains(hwp11.label))            
+                            headerValues.add(hwp11);
+                        headerLabels.add(hwp11.label);
+                    }
+                    when 12{
+                        jwm.value_Month_12 = jw.value;
+                        String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                       
+                        headerwrapper hwp12 = new headerwrapper();
+                        hwp12.label = hstr;
+                        hwp12.fieldName = 'value_Month_12';
+                        hwp12.type = 'text';
+                       
+                        if(!headerLabels.contains(hwp12.label))            
+                            headerValues.add(hwp12);
+                        headerLabels.add(hwp12.label);                      
+                    }
+                }
+            }
+           
+            materialwiseList.add(jwm);
+        }
+        oTIFDataTableWrapperMonths oTIFDataTableWrapperMonthList = new oTIFDataTableWrapperMonths(headerValues,materialwiseList);
+        return oTIFDataTableWrapperMonthList;      
+
+    }    
+   
+    public Class oTIFIntegrationWrapper {
+        @AuraEnabled public String material;
+        @AuraEnabled public String univarProduct;
+        @AuraEnabled public String cPP;
+        @AuraEnabled public DateTime month;
+        @AuraEnabled public Decimal value;
+    }
+   
+    public Class oTIFDataTableWrapper {
+        @AuraEnabled public String material {get;set;}
+        @AuraEnabled public Decimal value_Month_1 {get;set;}
+        //@AuraEnabled public List<String> name_Of_Months;
+        @AuraEnabled public Decimal value_Month_2 {get;set;}
+        @AuraEnabled public Decimal value_Month_3 {get;set;}
+        @AuraEnabled public Decimal value_Month_4 {get;set;}
+        @AuraEnabled public Decimal value_Month_5 {get;set;}
+        @AuraEnabled public Decimal value_Month_6 {get;set;}
+        @AuraEnabled public Decimal value_Month_7 {get;set;}
+        @AuraEnabled public Decimal value_Month_8 {get;set;}
+        @AuraEnabled public Decimal value_Month_9 {get;set;}
+        @AuraEnabled public Decimal value_Month_10 {get;set;}
+        @AuraEnabled public Decimal value_Month_11 {get;set;}
+        @AuraEnabled public Decimal value_Month_12 {get;set;}
+        @AuraEnabled public Integer fiscalyear {get;set;}
+    }
+   
+    public class headerwrapper
+    {
+        @AuraEnabled public string label {get;set;}
+        @AuraEnabled public string fieldName {get;set;}
+        @AuraEnabled public string type {get;set;}
+    }  
+   
+    public Class oTIFDataTableWrapperMonths {
+        @AuraEnabled public set<headerwrapper> headerWrappers {get;set;}
+        @AuraEnabled public List<oTIFDataTableWrapper> materialValues {get;set;}
+        public oTIFDataTableWrapperMonths(set<headerwrapper> hw,List<oTIFDataTableWrapper> mv)
+        {
+            this.headerWrappers = hw;
+            this.materialValues = mv;
+        }
+    }    
+   
+}
