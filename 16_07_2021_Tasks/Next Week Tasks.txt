@@ -1,0 +1,5 @@
+1) opportunity tab on brief object -- png attached.
+2) Pricing History Controller - Want to use same controller from a single lighning component(which can be re-used)
+ on two different objects brief custom object and account standard object. I want to perform the logic based on the object name
+obtained from the record id. If possible want to have a single class and query the objects dynamically.
+3) 
