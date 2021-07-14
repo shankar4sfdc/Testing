@@ -129,4 +129,68 @@ export default class RecordsBarChart extends LightningElement {
         data: chartAmt3Data,
         },
         /*{
+            label: 'April',
+            backgroundColor: "green",
+            data: chartAmt4Data,
+        },
+        {
+            label: 'May',
+            backgroundColor: "green",
+            data: chartAmt5Data,
+        },
+        {
+            label: 'June',
+            backgroundColor: "green",
+            data: chartAmt6Data,
+        },
+        {
+            label: 'July',
+            backgroundColor: "green",
+            data: chartAmt7Data,
+        },
+        {
+            label: 'August',
+            backgroundColor: "green",
+            data: chartAmt8Data,
+        },
+        {
+            label: 'September',
+            backgroundColor: "green",
+            data: chartAmt9Data,
+        },
+        {
+            label: 'Oct',
+            backgroundColor: "green",
+            data: chartAmt10Data,
+        },
+        {
+            label: 'Nov',
+            backgroundColor: "green",
+            data: chartAmt11Data,
+        },
+        {
+            label: 'Dec',
+            backgroundColor: "green",
+            data: chartAmtData,
+        },
+        {
+            label: 'Jan',
+            backgroundColor: "green",
+            data: chartAmt1Data,
+        },
+        {
+            label: 'Feb',
+            backgroundColor: "green",
+            data: chartAmt2Data,
         },*/
+
+     ],
+    },
+    options: {
+    },
+   };
+   console.log('data => ', data);
+   this.error = undefined;
+  }
+ }
+}
