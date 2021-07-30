@@ -1,0 +1,53 @@
+<template>
+		<template if:true={cppPriceRecord} for:each={cppPriceRecord} for:item="priceRecord" for:index="index">
+			<lightning-layout key={priceRecord}> 
+				<lightning-layout-item padding="around-small">
+					<div class="header-column">
+						<p class="field-title" title="Pack weight">Pack weight</p>
+						<p>{priceRecord.cppName}</p>
+					</div>
+				</lightning-layout-item>
+			</lightning-layout>
+		<lightning-accordion class="example-accordion" key={priceRecord}>		
+		<template if:true={priceRecord} for:each={priceRecord} for:item="priceItem" for:index="index">
+			<lightning-accordion-section name={priceItem.lskuName} key={priceItem} label={priceItem.lskuName}>
+			<!--<lightning-button label="Open Q pricing" title="Non-primary action"
+				class="slds-m-left_x-small slds-float_right" style="margin-top: -2%;"></lightning-button>
+			<lightning-layout>
+				<lightning-layout-item padding="around-small">
+					<div class="header-column">
+						<p class="field-title" title="Pack weight">Pack weight</p>
+						<p>{priceItem.packWeight}</p>
+					</div>
+				</lightning-layout-item>
+				<lightning-layout-item padding="around-small">
+					<div class="header-column">
+						<p class="field-title" title="Price Unit of Measure">Price Unit of Measure</p>
+						<p>{priceItem.unitOfMeasure}</p>
+					</div>
+				</lightning-layout-item>
+				<lightning-layout-item padding="around-small">
+					<div class="header-column">
+						<p class="field-title" title="Is Bulk">Is Bulk</p>
+						<p>{priceItem.isBulk}</p>
+					</div>
+				</lightning-layout-item>
+				<lightning-layout-item padding="around-small">
+					<div class="header-column">
+						<p class="field-title" title="ESQ">ESQ</p>
+						<p>{priceItem.esq}</p>
+					</div>
+				</lightning-layout-item>
+			</lightning-layout>-->
+			<!--<lightning-layout>
+				<lightning-layout-item size="12" small-device-size="12" medium-device-size="12" large-device-size="12"
+				padding="around-small">
+					<lightning-datatable  data-id='DataTableId' data={priceItem.priceIntegrationTableList} columns={columns} key-field="id"   >
+					</lightning-datatable>
+			    </lightning-layout-item>
+			</lightning-layout>-->
+		</lightning-accordion-section>
+		</template>
+	</lightning-accordion>
+	</template>
+</template>
