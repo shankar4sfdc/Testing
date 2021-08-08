@@ -1,0 +1,15 @@
+<template>
+    <div class="spinner">
+        <template if:true={isLoading}>
+            <lightning-spinner alternative-text="Loading" variant="brand" size="large">
+            </lightning-spinner>
+        </template>
+    </div>
+   <div style="height: 300px;">
+       <lightning-datatable
+               key-field="id"
+               data={oTIFS}
+               columns={columns}>
+       </lightning-datatable>
+   </div>    
+</template>
