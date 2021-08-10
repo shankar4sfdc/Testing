@@ -1,0 +1,668 @@
+/**
+ * Created by 10200312 on 25/06/2021.
+ * Created this class to consume OTIFs Api.
+ */
+public class AccountOTIFSHandler {
+
+    /*
+    *This method will return the OTIFs for a customer
+    * @param brief ID to get the required OTIFs from account from a brief
+    */        
+    @AuraEnabled
+    public static oTIFDataTableWrapperMonths getOTIFS(String briefId){
+        system.debug('@@ '+briefId);
+
+        Brief__c brief = [SELECT Id, Account__c, CPP__c from Brief__C WHERE Id = :briefId];
+
+        return getAccountOTIFS(brief.Account__c);
+    }  
+    
+    /**
+     * Created this method for account screen
+     * @param : accountId - Current account recordId
+     */
+    @AuraEnabled
+    public static oTIFDataTableWrapperMonths getAccountOTIFS(String accountId){
+        system.debug('@@ '+accountId);
+        String invalidNumbers = '[^0-9]';
+        Set<String> univarProductName = new Set<String>();
+        Map<String, Opportunity>  cppMap = new  Map<String, Opportunity>();     
+        Map<String, Univar_Product__c> oppToProd = new Map<String, Univar_Product__c>();
+        //CPP Record type id from Opportunity object
+        String cppTypeId = Schema.SObjectType.Opportunity.getRecordTypeInfosByName().get('CPP').getRecordTypeId();
+        Account acc;
+        
+        try{          
+        acc = [SELECT Id, AccountNumber, SalesOrg__c, Customer_Code__c FROM Account WHERE Id = : accountId];
+        
+        for(Opportunity opp : [SELECT Id, Name, Univar_Product__c,Univar_Product__r.Name, Univar_Product__r.Local_Product_Code__c FROM Opportunity WHERE AccountId =: accountId AND RecordTypeId =:cppTypeId]){
+            if(opp.Univar_Product__c != null && String.isNotBlank(opp.Univar_Product__r.Name)){
+                univarProductName.add(opp.Univar_Product__r.Name);
+
+                String cleanProdCode = opp.Univar_Product__r.Local_Product_Code__c.replaceAll(invalidNumbers, '');
+
+                if(!oppToProd.containsKey(cleanProdCode))
+                {
+                    Univar_Product__c univarProd = new Univar_Product__c();
+                    univarProd.Id = opp.Univar_Product__c;
+                    univarProd.Name = opp.Univar_Product__r.Name;
+
+
+                    oppToProd.put(cleanProdCode, univarProd);
+                }
+            }
+        }
+        }
+        
+        catch (QueryException e) {
+            throw new otifException('No Data Found for the Brief');  
+        }    
+        
+        system.debug('Opp To Product Map: ' + oppToProd);
+        
+        String json = DataWareHouseIntegration.callDWForOTIFsAPI(acc.AccountNumber,acc.SalesOrg__c);
+        
+        system.debug('JSON returned is:'+Json);
+        
+        if(String.isNotBlank(json)){            
+        	return OTIFSCalculations(oppToProd,json);
+        }
+        
+        return null;   
+    }
+    //
+    
+     /**
+     * Generic method for brief and account object
+     * @param : This method uses two parameters
+     * Map<String, Univar_Product__c> - To iterate through Univar Products of the CPP
+     * String Json - the Json returened from calling the OTIFS API
+     */
+    public static oTIFDataTableWrapperMonths OTIFSCalculations(Map<String, Univar_Product__c> oppToProd,String Json){
+        List<oTIFIntegrationWrapper> oTIFIntegrationWrapperList = (List<oTIFIntegrationWrapper>)System.JSON.deserialize(json, List<oTIFIntegrationWrapper>.class);
+        
+        system.debug('oTIFIntegrationWrapperList returned from API is:'+oTIFIntegrationWrapperList);
+        
+        map<String,List<oTIFIntegrationWrapper>> cppWiseData = new map<String,List<oTIFIntegrationWrapper>>();
+        
+        if(!oppToProd.values().isEmpty()){
+            for(oTIFIntegrationWrapper ow : oTIFIntegrationWrapperList)
+            {
+                System.debug(ow);
+                System.debug(oppToProd);
+
+                //checking the cpp and product name and adding to the map
+                if(oppToProd.containsKey(ow.cPP))
+                {
+                    system.debug('OW for the material is:'+ow);
+                    if(cppWiseData.containsKey(ow.cpp))
+                    {
+                        system.debug('Adding CPP Material Data:'+oppToProd.get(ow.cpp).Name);                    
+                        List<oTIFIntegrationWrapper> monthValues = cppWiseData.get(ow.cpp);
+                        monthValues.add(ow);
+                        cppWiseData.put(ow.cpp, monthValues);
+                    }
+                    else
+                    {
+                        system.debug('Adding First CPP Material Data:'+oppToProd.get(ow.cpp).Name);                    
+                        cppWiseData.put(ow.cpp, new List<oTIFIntegrationWrapper> { ow });
+                    }
+                    
+                }
+                
+            }  
+        }
+              
+        
+        system.debug('cppWiseData:'+cppWiseData);
+        
+        List<oTIFDataTableWrapper> cppWiseDataTable = new List<oTIFDataTableWrapper>();
+        List<String> monthNames = new List<String>{'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'};
+        List<String> uniqueHeaders = new List<String>();
+        List<headerwrapper> headerValues = new List<headerwrapper>();
+        //oTIFDataTableWrapperMonths oTIFDataTableWrapperMonth = new oTIFDataTableWrapperMonths();
+
+        headerwrapper hwp = new headerwrapper();
+        hwp.label = 'Material(Code)';
+        hwp.fieldName = 'material';
+        hwp.type = 'text';
+
+        if(!uniqueHeaders.contains('Material(Code)'))
+        {            
+            uniqueHeaders.add('Material(Code)');
+            headerValues.add(hwp);
+        }
+
+        for(string str : cppwiseData.keyset())
+        {
+            oTIFDataTableWrapper jwm = new oTIFDataTableWrapper();          
+            
+            jwm.material = oppToProd.get(str).Name;
+            
+            for(oTIFIntegrationWrapper jw : cppwiseData.get(str))
+            {
+                jwm.fiscalyear = jwm.fiscalyear!=null ? (jwm.fiscalyear<jw.month.year()?jwm.fiscalyear:jw.month.year() ) : jw.month.year();
+                //system.debug('month--->'+jw.month);
+                //system.debug('month--->'+jw.month.format());
+                if(jw.month.year()==System.today().year())
+                {
+                    switch on jw.month.month() {
+                        when 1{
+                            jwm.valueNext_Month_1 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp1 = new headerwrapper();
+                            hwp1.label = hstr;
+                            hwp1.fieldName = 'valueNext_Month_1';
+                            hwp1.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp1);
+                            }
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                        when 2{
+                            jwm.valueNext_Month_2 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp2 = new headerwrapper();
+                            hwp2.label = hstr;
+                            hwp2.fieldName = 'valueNext_Month_2';
+                            hwp2.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp2);
+                            }           
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                        when 3{
+                            jwm.valueNext_Month_3 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp3 = new headerwrapper();
+                            hwp3.label = hstr;
+                            hwp3.fieldName = 'valueNext_Month_3';
+                            hwp3.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp3);
+                            }    
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                        when 4{
+                            jwm.valueNext_Month_4 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp4 = new headerwrapper();
+                            hwp4.label = hstr;
+                            hwp4.fieldName = 'valueNext_Month_4';
+                            hwp4.type = 'text';
+
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp4);
+                            }    
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);
+                        }
+                        when 5{
+                            jwm.valueNext_Month_5 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp5 = new headerwrapper();
+                            hwp5.label = hstr;
+                            hwp5.fieldName = 'valueNext_Month_5';
+                            hwp5.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp5);
+                            }    
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                        when 6{
+                            jwm.valueNext_Month_6 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp6 = new headerwrapper();
+                            hwp6.label = hstr;
+                            hwp6.fieldName = 'valueNext_Month_6';
+                            hwp6.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp6);
+                            }    
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                        when 7{
+                            jwm.valueNext_Month_7 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp7 = new headerwrapper();
+                            hwp7.label = hstr;
+                            hwp7.fieldName = 'valueNext_Month_7';
+                            hwp7.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp7);
+                            }    
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                        when 8{
+                            jwm.valueNext_Month_8 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp8 = new headerwrapper();
+                            hwp8.label = hstr;
+                            hwp8.fieldName = 'valueNext_Month_8';
+                            hwp8.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp8);
+                            }    
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                        when 9{
+                            jwm.valueNext_Month_9 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp9 = new headerwrapper();
+                            hwp9.label = hstr;
+                            hwp9.fieldName = 'valueNext_Month_9';
+                            hwp9.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp9);
+                            }    
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                        when 10{
+                            jwm.valueNext_Month_10 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp10 = new headerwrapper();
+                            hwp10.label = hstr;
+                            hwp10.fieldName = 'valueNext_Month_10';
+                            hwp10.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp10);
+                            }    
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                        when 11{
+                            jwm.valueNext_Month_11 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp11 = new headerwrapper();
+                            hwp11.label = hstr;
+                            hwp11.fieldName = 'valueNext_Month_11';
+                            hwp11.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp11);
+                            }    
+                        }
+                        when 12{
+                            jwm.valueNext_Month_12 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp12 = new headerwrapper();
+                            hwp12.label = hstr;
+                            hwp12.fieldName = 'valueNext_Month_12';
+                            hwp12.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp12);
+                            }    
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                    }
+                }
+                else {
+                    switch on jw.month.month() {
+                        when 1{
+                            jwm.value_Month_1 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp1 = new headerwrapper();
+                            hwp1.label = hstr;
+                            hwp1.fieldName = 'value_Month_1';
+                            hwp1.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp1);
+                            }
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                        when 2{
+                            jwm.value_Month_2 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp2 = new headerwrapper();
+                            hwp2.label = hstr;
+                            hwp2.fieldName = 'value_Month_2';
+                            hwp2.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp2);
+                            }           
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                        when 3{
+                            jwm.value_Month_3 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp3 = new headerwrapper();
+                            hwp3.label = hstr;
+                            hwp3.fieldName = 'value_Month_3';
+                            hwp3.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp3);
+                            }    
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                        when 4{
+                            jwm.value_Month_4 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp4 = new headerwrapper();
+                            hwp4.label = hstr;
+                            hwp4.fieldName = 'value_Month_4';
+                            hwp4.type = 'text';
+
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp4);
+                            }    
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);
+                        }
+                        when 5{
+                            jwm.value_Month_5 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp5 = new headerwrapper();
+                            hwp5.label = hstr;
+                            hwp5.fieldName = 'value_Month_5';
+                            hwp5.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp5);
+                            }    
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                        when 6{
+                            jwm.value_Month_6 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp6 = new headerwrapper();
+                            hwp6.label = hstr;
+                            hwp6.fieldName = 'value_Month_6';
+                            hwp6.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp6);
+                            }    
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                        when 7{
+                            jwm.value_Month_7 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp7 = new headerwrapper();
+                            hwp7.label = hstr;
+                            hwp7.fieldName = 'value_Month_7';
+                            hwp7.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp7);
+                            }    
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                        when 8{
+                            jwm.value_Month_8 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp8 = new headerwrapper();
+                            hwp8.label = hstr;
+                            hwp8.fieldName = 'value_Month_8';
+                            hwp8.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp8);
+                            }    
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                        when 9{
+                            jwm.value_Month_9 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp9 = new headerwrapper();
+                            hwp9.label = hstr;
+                            hwp9.fieldName = 'value_Month_9';
+                            hwp9.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp9);
+                            }    
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                        when 10{
+                            jwm.value_Month_10 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp10 = new headerwrapper();
+                            hwp10.label = hstr;
+                            hwp10.fieldName = 'value_Month_10';
+                            hwp10.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp10);
+                            }    
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                        when 11{
+                            jwm.value_Month_11 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp11 = new headerwrapper();
+                            hwp11.label = hstr;
+                            hwp11.fieldName = 'value_Month_11';
+                            hwp11.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp11);
+                            }    
+                        }
+                        when 12{
+                            jwm.value_Month_12 = jw.value;
+                            String hstr = monthNames[jw.month.month()-1]+'-'+String.valueOf(jw.month.year()).substring(2, 4);
+                            
+                            headerwrapper hwp12 = new headerwrapper();
+                            hwp12.label = hstr;
+                            hwp12.fieldName = 'value_Month_12';
+                            hwp12.type = 'text';
+                            
+                            if(!uniqueHeaders.contains(hstr))
+                            {            
+                                uniqueHeaders.add(hstr);
+                                headerValues.add(hwp12);
+                            }    
+                            
+                            system.debug('hwp is:'+hwp);
+                            system.debug('headerValues is:'+headerValues);                        
+                        }
+                    }
+                }
+            }
+            
+            system.debug('headerValues is:'+headerValues);
+            cppWiseDataTable.add(jwm);
+            
+        }
+        
+        for(OTIFIntegrationWrapper oiw:oTIFIntegrationWrapperList)
+        {
+            system.debug('oTIFIntegrationWrapper returned is:'+oiw);
+        }
+        
+        
+        oTIFDataTableWrapperMonths oTIFDataTableWrapperMonth = new oTIFDataTableWrapperMonths(headerValues,cppWiseDataTable);
+        
+        system.debug('Header wrappers in datatable wrapper class:' + oTIFDataTableWrapperMonth.headerWrappers);
+        
+        system.debug('Material Values in datatable wrapper class:' + oTIFDataTableWrapperMonth.materialValues);        
+        
+        return oTIFDataTableWrapperMonth;
+    }
+    public Class oTIFIntegrationWrapper {
+        @AuraEnabled public String material;
+        @AuraEnabled public String univarProduct;
+        @AuraEnabled public String cPP;
+        @AuraEnabled public DateTime month;
+        @AuraEnabled public Decimal value;
+    }
+    
+    public Class oTIFDataTableWrapper {
+        @AuraEnabled public String material {get;set;}
+        @AuraEnabled public Decimal value_Month_1 {get;set;}
+        //@AuraEnabled public List<String> name_Of_Months;
+        @AuraEnabled public Decimal value_Month_2 {get;set;}
+        @AuraEnabled public Decimal value_Month_3 {get;set;}
+        @AuraEnabled public Decimal value_Month_4 {get;set;}
+        @AuraEnabled public Decimal value_Month_5 {get;set;}
+        @AuraEnabled public Decimal value_Month_6 {get;set;}
+        @AuraEnabled public Decimal value_Month_7 {get;set;}
+        @AuraEnabled public Decimal value_Month_8 {get;set;}
+        @AuraEnabled public Decimal value_Month_9 {get;set;}
+        @AuraEnabled public Decimal value_Month_10 {get;set;}
+        @AuraEnabled public Decimal value_Month_11 {get;set;}
+        @AuraEnabled public Decimal value_Month_12 {get;set;}
+        @AuraEnabled public Decimal valueNext_Month_1 {get;set;}
+        @AuraEnabled public Decimal valueNext_Month_2 {get;set;}
+        @AuraEnabled public Decimal valueNext_Month_3 {get;set;}
+        @AuraEnabled public Decimal valueNext_Month_4 {get;set;}
+        @AuraEnabled public Decimal valueNext_Month_5 {get;set;}
+        @AuraEnabled public Decimal valueNext_Month_6 {get;set;}
+        @AuraEnabled public Decimal valueNext_Month_7 {get;set;}
+        @AuraEnabled public Decimal valueNext_Month_8 {get;set;}
+        @AuraEnabled public Decimal valueNext_Month_9 {get;set;}
+        @AuraEnabled public Decimal valueNext_Month_10 {get;set;}
+        @AuraEnabled public Decimal valueNext_Month_11 {get;set;}
+        @AuraEnabled public Decimal valueNext_Month_12 {get;set;}
+        @AuraEnabled public Integer fiscalyear {get;set;}
+    }
+    
+    public class headerwrapper
+    {
+        @AuraEnabled public string label {get;set;}
+        @AuraEnabled public string fieldName {get;set;}
+        @AuraEnabled public string type {get;set;}
+    }  
+    
+    public class oTIFDataTableWrapperMonths {
+            @AuraEnabled public string label {get;set;}
+            @AuraEnabled public string fieldName {get;set;}
+            @AuraEnabled public string type {get;set;}
+     
+   
+
+        @AuraEnabled public List<headerwrapper> headerWrappers {get;set;}
+        @AuraEnabled public List<oTIFDataTableWrapper> materialValues {get;set;}
+        
+        public oTIFDataTableWrapperMonths(List<headerwrapper> hw,List<oTIFDataTableWrapper> mv)
+        {
+            this.headerWrappers = hw;
+            this.materialValues = mv;
+        }
+    }  
+    
+    public class otifException extends Exception{
+        
+    }   
+}
