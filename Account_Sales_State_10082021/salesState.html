@@ -1,0 +1,150 @@
+<template>
+   <div class="spinner">
+      <template if:true={isLoading}>
+         <lightning-spinner alternative-text="Loading" variant="brand" size="large">
+         </lightning-spinner>
+      </template>
+   </div>
+     <div class="slds-box slds-p-around_none slds-m-top_x-small slds-m-bottom_medium slds-m-horizontal_none">
+       <lightning-layout multiple-rows>
+          <lightning-layout-item size="12" small-device-size="12" medium-device-size="4" large-device-size="3" padding="around-small">
+             <div class="slds-form-element">
+                <label class="slds-form-element__label" for="select-01">What do you want to see?</label>
+                <div class="slds-form-element__control">
+                   <div class="slds-select_container">
+                      <select class="slds-select" id="select-01" onchange={handleChange}>
+                         <option value="Volume" >Volume</option>
+                         <option value="Sales"  >Sales</option>
+                         <option value="GP"  >GP</option>
+                         <option value="GpTonner"  >GP/P</option>
+                         <option value="GpPercentage" >GP%</option>
+                      </select>
+                   </div>
+                </div>
+             </div>
+          </lightning-layout-item>
+          <lightning-layout-item size="12" small-device-size="12" medium-device-size="9" large-device-size="9" padding="around-small">
+               <lightning-datatable data={data} columns={columns} key-field="id"> </lightning-datatable>
+             <!--
+             <table aria-multiselectable="true" class="slds-table" role="grid">
+                <thead>
+                   <tr class="slds-line-height_reset">
+                      <th class="slds-text-align_right" scope="col" style="width:3.25rem">
+                         <span id="column-group-header" class="slds-assistive-text">Choose a row</span>
+                         <div class="slds-th__action slds-th__action_form">
+                            <div class="slds-checkbox">
+                               <input type="checkbox" name="options" id="checkbox-unique-id-297" value="checkbox-unique-id-297" tabindex="0" aria-labelledby="check-select-all-label column-group-header" />
+                               <label class="slds-checkbox__label" for="checkbox-unique-id-297" id="check-select-all-label">
+                               <span class="slds-checkbox_faux"></span>
+                               <span class="slds-form-element__label slds-assistive-text">Select All</span>
+                               </label>
+                            </div>
+                         </div>
+                      </th>
+                      <th aria-label="Product" aria-sort="none" class="slds-is-sortable" scope="col">
+                         <a class="slds-th__action slds-text-link_reset" href="#" role="button" tabindex="0">
+                            <span class="slds-assistive-text">Sort by: </span>
+                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                               <span class="slds-truncate" title="Product">Product</span> 
+                            </div>
+                         </a> 
+                      </th>
+                      <th aria-label="Material" aria-sort="none" class="slds-is-sortable" scope="col">
+                         <a class="slds-th__action slds-text-link_reset" href="#" role="button" tabindex="0">
+                            <span class="slds-assistive-text">Sort by: </span>
+                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                               <span class="slds-truncate" title="Material">Material</span> 
+                            </div>
+                         </a>
+                        
+                      </th>
+                      <th aria-label="CPP" aria-sort="none" class="slds-is-sortable" scope="col">
+                         <a class="slds-th__action slds-text-link_reset" href="#" role="button" tabindex="0">
+                            <span class="slds-assistive-text">Sort by: </span>
+                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                               <span class="slds-truncate" title="CPP">CPP</span> 
+                            </div>
+                         </a> 
+                      </th>
+                      <th aria-label="Volume" aria-sort="none" class="slds-is-sortable" scope="col">
+                         <a class="slds-th__action slds-text-link_reset" href="#" role="button" tabindex="0">
+                            <span class="slds-assistive-text">Sort by: </span>
+                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                               <span class="slds-truncate" title="Open Orders">{headerValue}</span> 
+                            </div>
+                         </a> 
+                      </th>
+                      <th aria-label="Sales" aria-sort="none" class="slds-is-resizable slds-is-sortable" scope="col">
+                         <a class="slds-th__action slds-text-link_reset" href="#" role="button" tabindex="0">
+                            <span class="slds-assistive-text">Sort by: </span>
+                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                               <span class="slds-truncate" title="Current month">Current month</span> 
+                            </div>
+                         </a> 
+                      </th>
+                      <th aria-label="GP" aria-sort="none" class="slds-is-resizable slds-is-sortable" scope="col">
+                         <a class="slds-th__action slds-text-link_reset" href="#" role="button" tabindex="0">
+                            <span class="slds-assistive-text">Sort by: </span>
+                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                               <span class="slds-truncate" title="Last 12 months">Last 12 months</span> 
+                            </div>
+                         </a> 
+                      </th>
+                      <th aria-label="GPT" aria-sort="none" class="slds-is-resizable slds-is-sortable" scope="col">
+                         <a class="slds-th__action slds-text-link_reset" href="#" role="button" tabindex="0">
+                            <span class="slds-assistive-text">Sort by: </span>
+                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                               <span class="slds-truncate" title="Last 13-24 months">Last 13-24 months</span> 
+                            </div>
+                         </a> 
+                      </th>
+                     
+                   </tr>
+                </thead>
+                <tbody>
+                    <template if:true={recordValues} for:each={recordValues} for:item="recordItem" for:index="index">
+                   <tr aria-selected="false" class="slds-hint-parent" key={recordItem}>
+                      <td style="text-align: -webkit-center;" role="gridcell">
+                         <div class="slds-checkbox">
+                            <input type="checkbox" name="options" id={index} value={index} tabindex="0" aria-labelledby="check-button-label-01 column-group-header" />
+                            <label class="slds-checkbox__label" for="checkbox-02" id={index}>
+                            <span class="slds-checkbox_faux"></span>
+                            <span class="slds-form-element__label slds-assistive-text">Select item 1</span>
+                            </label>
+                         </div>
+                      </td>
+                      <th scope="row">
+                         <div class="slds-truncate" title={recordItem.product}>
+                            <a href="#" tabindex="0">{recordItem.product}</a>
+                         </div>
+                      </th>
+                      <td role="gridcell">
+                         <div class="slds-truncate" title="Ethanol 50% IBC">Ethanol 50% IBC</div>
+                      </td>
+                      <td role="gridcell">
+                         <div class="slds-truncate" title="2645374">2645374</div>
+                      </td>
+                      
+                      <td role="gridcell" >
+                         <div class="slds-truncate" title="1000">{recordItem}</div>
+                      </td>
+                      
+                      <td role="gridcell">
+                         <div class="slds-truncate" title="10000">10000</div>
+                      </td>
+                      <td role="gridcell">
+                         <div class="slds-truncate" title="1500">1500</div>
+                      </td>
+                      <td role="gridcell">
+                         <div class="slds-truncate" title="1.5" >1.5</div>
+                      </td>
+                   </tr> 
+                   </template>
+                </tbody>
+             </table>
+             -->
+
+          </lightning-layout-item>
+       </lightning-layout>
+    </div>
+</template>
