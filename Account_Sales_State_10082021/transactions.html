@@ -1,0 +1,49 @@
+<template>
+   <div class="spinner">
+      <template if:true={isLoading}>
+         <lightning-spinner alternative-text="Loading" variant="brand" size="large">
+         </lightning-spinner>
+      </template>
+   </div>
+     <div class="slds-box slds-p-around_none slds-m-top_x-small slds-m-bottom_medium slds-m-horizontal_none">
+      <lightning-layout multiple-rows>
+         <ul class="slds-p-left_medium">
+            <li>         
+         <lightning-layout-item size="12" small-device-size="12" medium-device-size="4" large-device-size="3" padding="around-small">
+            <div class="slds-form-element">
+               <label class="slds-form-element__label" for="select-01">What do you want to see?</label>
+               <div class="slds-form-element__control">
+                  <div class="slds-select_container">
+                     <select class="slds-select" id="select-01" onchange={handleChange}>
+                        <option value="Open Orders">Open Orders</option>
+                        <option value="Current Month">Current Month</option>
+                        <option value="Last 12 Months">Last 12 Months</option>
+                        <option value="Last 13 to 24 Months">Last 13 to 24 Months</option>
+                     </select>
+                  </div>
+               </div>
+            </div>
+         </lightning-layout-item>
+      </li>
+      <li>
+          <lightning-layout-item size="12" small-device-size="12" medium-device-size="4"
+              large-device-size="3" padding="around-small">
+              <lightning-input type="checkbox" onchange={handleCheckBoxChange}
+                  label="Relevant for me" checked>
+              </lightning-input>
+          </lightning-layout-item>
+      </li>
+      <li>
+          <lightning-layout-item size="12" small-device-size="12" medium-device-size="4"
+              large-device-size="3" padding="around-small">
+              <lightning-button label="Update" title="Looks like a link" onclick={handleClick}
+                  class="slds-m-left_x-small"></lightning-button>
+          </lightning-layout-item>
+      </li>
+  </ul>         
+         <lightning-layout-item size="12" small-device-size="12" medium-device-size="9" large-device-size="9" padding="around-small">
+            <lightning-datatable data={data} columns={columns} key-field="id"> </lightning-datatable>
+         </lightning-layout-item>
+      </lightning-layout>
+   </div>
+</template>
